@@ -23,11 +23,7 @@
                         "polyfills": ["zone.js"],
                         "tsConfig": "tsconfig.app.json",
                         "inlineStyleLanguage": "scss",
-                        "assets": [
-                            "src/assets/panda.png",
-                            "src/assets",
-                            "src/manifest.json"
-                        ],
+                        "assets": ["src/assets", "src/manifest.json"],
                         "styles": ["src/styles.scss"],
                         "scripts": []
                     },
@@ -79,7 +75,7 @@
                         "polyfills": ["zone.js", "zone.js/testing"],
                         "tsConfig": "tsconfig.spec.json",
                         "inlineStyleLanguage": "scss",
-                        "assets": ["src/assets/panda.png", "src/assets"],
+                        "assets": ["src/assets"],
                         "styles": ["src/styles.scss"],
                         "scripts": []
                     }
