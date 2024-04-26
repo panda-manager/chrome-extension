@@ -1,25 +1,36 @@
 {
-    "name": "Panda Manager",
-    "version": "1",
-    "description": "password manager",
-    "manifest_version": 3,
-    "action": {
-        "default_title": "pandata title",
-        "default_popup": "index.html",
-        "default_icon": "assets/panda128.png"
-    },
-    "icons": {
-        "128": "assets/panda128.png"
-    },
-    "permissions": ["tabs", "storage", "activeTab"],
-    "content_security_policy": {
-        "extension_pages": "script-src 'self'; object-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com;",
-        "sandbox": "sandbox allow-scripts allow-forms allow-popups allow-modals; script-src 'self' 'unsafe-inline' 'unsafe-eval'; child-src 'self';"
-    },
-    "web_accessible_resources": [
-        {
-            "resources": ["index.html", "assets/*", "main.js", "*.js"],
-            "matches": ["<all_urls>"]
-        }
-    ]
+  "name": "Panda Manager",
+  "version": "1",
+  "description": "password manager",
+  "manifest_version": 3,
+  "action": {
+    "default_title": "pandata title",
+    "default_popup": "index.html",
+    "default_icon": "assets/panda128.png"
+  },
+  "icons": {
+    "128": "assets/panda128.png"
+  },
+  "permissions": [
+    "tabs",
+    "activeTab",
+    "alarms",
+    "notifications",
+    "storage",
+    "webNavigation",
+    "activeTab",
+    "bookmarks",
+    "declarativeContent"
+  ],
+  "content_security_policy": {
+    "extension_pages": "script-src 'self'; object-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com;",
+    "sandbox": "sandbox allow-scripts allow-forms allow-popups allow-modals; script-src 'self' 'unsafe-inline' 'unsafe-eval'; child-src 'self';"
+  },
+
+  "web_accessible_resources": [
+    {
+      "resources": ["index.html", "assets/*", "main.js", "*.js"],
+      "matches": ["<all_urls>"]
+    }
+  ]
 }
