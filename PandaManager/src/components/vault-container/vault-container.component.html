@@ -1,0 +1,41 @@
+@if (isLoading) {
+  <div class="loading">
+    <mat-spinner></mat-spinner>
+  </div>
+} @else {
+  <mat-accordion>
+    @for (credential of displayedCredentials; track $index) {
+      <mat-expansion-panel hideToggle>
+        <mat-expansion-panel-header>
+          <div class="credential">
+            <span class="host">{{ credential.host }}</span>
+            <span class="login">{{ credential.login }}</span>
+          </div>
+        </mat-expansion-panel-header>
+        <div class="input-wrapper">
+          <input
+            class="input"
+            [type]="
+              shownPasswordDict[createDisplayedCredentialId(credential)]
+                ? 'text'
+                : 'password'
+            "
+            type="text"
+            readonly
+            [value]="
+              shownPasswordDict[createDisplayedCredentialId(credential)] ??
+              'password template'
+            "
+          />
+          <div class="toggle-icon" (click)="showPasswordClicked(credential)">
+            {{
+              shownPasswordDict[createDisplayedCredentialId(credential)]
+                ? '👁'
+                : '🔒'
+            }}
+          </div>
+        </div>
+      </mat-expansion-panel>
+    }
+  </mat-accordion>
+}
