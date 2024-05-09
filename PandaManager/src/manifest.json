@@ -18,7 +18,7 @@
     "notifications",
     "storage",
     "webNavigation",
-    "activeTab",
+    "webRequest",
     "bookmarks",
     "declarativeContent"
   ],
@@ -26,7 +26,7 @@
     "extension_pages": "script-src 'self'; object-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com;",
     "sandbox": "sandbox allow-scripts allow-forms allow-popups allow-modals; script-src 'self' 'unsafe-inline' 'unsafe-eval'; child-src 'self';"
   },
-
+  "host_permissions": ["http://localhost:8080/*"],
   "web_accessible_resources": [
     {
       "resources": ["index.html", "assets/*", "main.js", "*.js"],
