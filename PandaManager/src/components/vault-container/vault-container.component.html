@@ -3,6 +3,7 @@
     <mat-spinner></mat-spinner>
   </div>
 } @else {
+  <input class="search" [formControl]="searchControl" placeholder="Search" />
   <mat-accordion>
     @for (credential of displayedCredentials; track $index) {
       <mat-expansion-panel hideToggle>
@@ -12,9 +13,9 @@
             <span class="login">{{ credential.login }}</span>
           </div>
         </mat-expansion-panel-header>
-        <div class="input-wrapper">
+        <div class="password-input-wrapper">
           <input
-            class="input"
+            class="password-input"
             [type]="
               shownPasswordDict[createDisplayedCredentialId(credential)]
                 ? 'text'

@@ -13,6 +13,17 @@
   height: 100%;
 }
 
+.search {
+  align-self: center;
+  width: 242px;
+  margin: 16px;
+  border-radius: 20px;
+  border: 1px solid black;
+  font-size: 1rem;
+  height: 23px;
+  padding: 8px;
+}
+
 .credential {
   margin: 10px;
   font-size: 1rem;
@@ -25,7 +36,7 @@
   color: gray;
 }
 
-.input {
+.password-input {
   width: 85%;
   padding: 8px 16px;
   border-radius: 4px;
@@ -33,7 +44,7 @@
   font-size: 20px;
 }
 
-.input-wrapper {
+.password-input-wrapper {
   position: relative;
 }
 
