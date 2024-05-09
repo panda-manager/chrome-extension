@@ -1,8 +1,16 @@
 <h1>Register</h1>
 <form [formGroup]="registerForm">
   <mat-form-field>
-    <mat-label>Username</mat-label>
-    <input matInput formControlName="username" />
+    <mat-label>first name</mat-label>
+    <input matInput formControlName="firstName" />
+  </mat-form-field>
+  <mat-form-field>
+    <mat-label>last name</mat-label>
+    <input matInput formControlName="lastName" />
+  </mat-form-field>
+  <mat-form-field>
+    <mat-label>email</mat-label>
+    <input matInput formControlName="email" />
   </mat-form-field>
   <mat-form-field>
     <mat-label>Password</mat-label>

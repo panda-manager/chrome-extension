@@ -13,15 +13,15 @@ export class AuthenticationService {
     private router: Router
   ) {}
 
-  public login(username: string, password: string): void {
-    this.httpService.login(username, password).subscribe((token) => {
+  public login(email: string, password: string): void {
+    this.httpService.login(email, password).subscribe((token) => {
       localStorage.setItem(this.tokenKey, token)
       this.router.navigate(['/'])
     })
   }
 
-  public register(username: string, password: string): void {
-    this.httpService.register(username, password).subscribe((token) => {
+  public register(email: string, password: string): void {
+    this.httpService.register(email, password).subscribe((token) => {
       localStorage.setItem(this.tokenKey, token)
       this.router.navigate(['/'])
     })

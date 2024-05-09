@@ -79,6 +79,9 @@ main {
   padding: 1rem;
   box-sizing: inherit;
   position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: start;
 }
 
 .divider {

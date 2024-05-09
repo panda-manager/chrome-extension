@@ -9,12 +9,12 @@ import { DisplayedCredential } from '../models/contracts/displayed-credentials-r
 export class HttpService {
   constructor(private http: HttpClient) {}
 
-  public login(username: string, password: string): Observable<string> {
+  public login(email: string, password: string): Observable<string> {
     this.http.post(
-      '.../login',
+      'http://localhost:8080/login',
       {
-        username: username,
-        password: password,
+        email,
+        password,
       },
       { responseType: 'text' }
     )
@@ -22,12 +22,12 @@ export class HttpService {
     return of('token mock')
   }
 
-  public register(username: string, password: string): Observable<string> {
+  public register(email: string, password: string): Observable<string> {
     this.http.post(
-      '.../register',
+      'http://localhost:8080/register',
       {
-        username: username,
-        password: password,
+        email,
+        password,
       },
       { responseType: 'text' }
     )
@@ -36,7 +36,7 @@ export class HttpService {
   }
 
   getDisplayedCredentials(): Observable<DisplayedCredential[]> {
-    this.http.get('.../app_displayed_credentials')
+    this.http.get('http://localhost:8080/app_displayed_credentials')
 
     return of([
       { host: 'first host', login: 'first login' },

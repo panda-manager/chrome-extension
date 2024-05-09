@@ -32,16 +32,15 @@ export class LoginContainerComponent implements OnInit {
   constructor(private authenticationService: AuthenticationService) {}
 
   ngOnInit() {
-    1
     this.loginForm = new FormGroup({
-      username: new FormControl('', Validators.required),
+      email: new FormControl('', [Validators.required, Validators.email]),
       password: new FormControl('', Validators.required),
     })
   }
 
   public onSubmit() {
     this.authenticationService.login(
-      this.loginForm.get('username')!.value,
+      this.loginForm.get('email')!.value,
       this.loginForm!.get('password')!.value // TODO: need to be hashed
     )
   }
