@@ -1,17 +1,16 @@
-import { Routes, mapToCanActivate } from '@angular/router'
+import { Routes } from '@angular/router'
 import { GeneratePasswordContainerComponent } from '../components/generate-password-container/generate-password-container.component'
-import { MenuComponent } from '../components/menu/menu.component'
 import { VaultContainerComponent } from '../components/vault-container/vault-container.component'
 import { LoginContainerComponent } from '../components/login-container/login-container.component'
 import { RegisterContainerComponent } from '../components/register-container/register-container.component'
 import { AuthGuard } from '../guards/auth-gard'
+import { HomeComponent } from '../components/home/home.component'
 
 export const routes: Routes = [
   {
     path: '',
-    component: MenuComponent,
+    component: HomeComponent,
     pathMatch: 'full',
-    canActivate: [AuthGuard],
   },
   {
     path: 'login',
@@ -30,6 +29,7 @@ export const routes: Routes = [
   },
   {
     path: 'vault',
+    canActivate: [AuthGuard],
     component: VaultContainerComponent,
     pathMatch: 'full',
   },

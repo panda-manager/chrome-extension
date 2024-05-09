@@ -1,0 +1,15 @@
+<mat-toolbar color="primary">
+  <div>
+    <a routerLink="" mat-button>Home</a>
+    <a routerLink="/generate" mat-button>Generate Password</a>
+    <a routerLink="/vault" mat-button>Vault</a>
+  </div>
+  <div>
+    @if (authenticationService.isLoggedIn()) {
+      <a mat-button (click)="onSignOutClicked()">sign out</a>
+    } @else {
+      <a mat-button routerLink="/login">sign in</a>
+    }
+    🐼
+  </div>
+</mat-toolbar>
