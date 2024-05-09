@@ -11,7 +11,7 @@ export class HttpService {
 
   public login(email: string, password: string): Observable<string> {
     this.http.post(
-      'http://localhost:8080/login',
+      'http://localhost:8080/auth/login',
       {
         email,
         password,
@@ -22,17 +22,24 @@ export class HttpService {
     return of('token mock')
   }
 
-  public register(email: string, password: string): Observable<string> {
-    this.http.post(
-      'http://localhost:8080/register',
+  public register(
+    email: string,
+    password: string,
+    firstName: string,
+    lastName: string
+  ): Observable<string> {
+    return this.http.post(
+      'http://localhost:8080/auth/register',
       {
         email,
         password,
+        firstName,
+        lastName,
       },
       { responseType: 'text' }
     )
 
-    return of('token mock')
+    // return of('token mock')
   }
 
   getDisplayedCredentials(): Observable<DisplayedCredential[]> {

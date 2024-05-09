@@ -43,7 +43,9 @@ export class RegisterContainerComponent implements OnInit {
   public onSubmit() {
     this.authenticationService.register(
       this.registerForm.get('email').value,
-      this.registerForm!.get('password').value
+      this.registerForm!.get('password').value,
+      this.registerForm!.get('firstName').value,
+      this.registerForm!.get('lastName').value
     )
   }
 }

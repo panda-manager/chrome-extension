@@ -20,11 +20,18 @@ export class AuthenticationService {
     })
   }
 
-  public register(email: string, password: string): void {
-    this.httpService.register(email, password).subscribe((token) => {
-      localStorage.setItem(this.tokenKey, token)
-      this.router.navigate(['/'])
-    })
+  public register(
+    email: string,
+    password: string,
+    firstName: string,
+    lastName: string
+  ): void {
+    this.httpService
+      .register(email, password, firstName, lastName)
+      .subscribe((token) => {
+        localStorage.setItem(this.tokenKey, token)
+        this.router.navigate(['/login'])
+      })
   }
 
   public logout() {
