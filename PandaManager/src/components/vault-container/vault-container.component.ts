@@ -29,7 +29,7 @@ import { MatIconModule } from '@angular/material/icon'
 export class VaultContainerComponent implements OnInit {
   displayedCredentialsFromServer: DisplayedCredential[]
   displayedCredentials: DisplayedCredential[]
-  isLoading = false
+  isLoading = true
   shownPasswordDict: Record<string, string> = {}
   searchControl = new FormControl()
   password: string = undefined
@@ -83,6 +83,8 @@ export class VaultContainerComponent implements OnInit {
             [displayedCredential.id]: password,
           }
         })
+
+      return
     }
 
     this.dialog
@@ -107,6 +109,7 @@ export class VaultContainerComponent implements OnInit {
           return
         }
 
+        this.password = password
         this.shownPasswordDict = {
           ...this.shownPasswordDict,
           [displayedCredential.id]: password,
