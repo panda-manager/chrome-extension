@@ -36,6 +36,20 @@ export class CredentialsBackendService {
       )
   }
 
+  public validateMasterPassword(password: string) {
+    return this.http.post(
+      'http://localhost:8080/auth/validate/master',
+      {
+        master_password: password,
+      },
+      {
+        headers: {
+          Authorization: `Bearer ${this.authenticationService.getToken()}`,
+        },
+      }
+    )
+  }
+
   getPassword(login: string, host: string): Observable<string> {
     return this.http
       .post(
@@ -45,6 +59,7 @@ export class CredentialsBackendService {
           host,
         },
         {
+          responseType: 'text',
           headers: {
             Authorization: `Bearer ${this.authenticationService.getToken()}`,
           },

@@ -13,6 +13,8 @@ import {
   MatDialogClose,
 } from '@angular/material/dialog'
 import { VaultCredentialDialogData } from './vault-credentials-dialog-data'
+import { CredentialsBackendService } from '../../services/credentials-backend.service'
+import { EMPTY, catchError } from 'rxjs'
 
 @Component({
   selector: 'app-vault-credentials-dialog',
@@ -32,13 +34,28 @@ import { VaultCredentialDialogData } from './vault-credentials-dialog-data'
 })
 export class VaultCredentialDialogComponent {
   masterPassword = ''
-
+  error = ''
   constructor(
     public dialogRef: MatDialogRef<VaultCredentialDialogComponent>,
-    @Inject(MAT_DIALOG_DATA) public data: VaultCredentialDialogData
+    @Inject(MAT_DIALOG_DATA) public data: VaultCredentialDialogData,
+    private credentialsBackendService: CredentialsBackendService
   ) {}
 
+  onApproveClick(): void {
+    this.credentialsBackendService
+      .validateMasterPassword(this.masterPassword)
+      .pipe(
+        catchError((error) => {
+          this.error = error.message
+          return EMPTY
+        })
+      )
+      .subscribe(() => {
+        this.dialogRef.close(this.masterPassword)
+      })
+  }
+
   onNoClick(): void {
-    this.dialogRef.close()
+    this.dialogRef.close(undefined)
   }
 }
