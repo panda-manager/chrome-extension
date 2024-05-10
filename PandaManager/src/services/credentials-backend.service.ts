@@ -1,0 +1,61 @@
+import { HttpClient } from '@angular/common/http'
+import { Injectable } from '@angular/core'
+import { Observable, catchError, map, of } from 'rxjs'
+import { DisplayedCredential } from '../models/contracts/displayed-credentials-response'
+import { AuthenticationService } from './authentication.service'
+
+@Injectable({
+  providedIn: 'root',
+})
+export class CredentialsBackendService {
+  constructor(
+    private http: HttpClient,
+    private authenticationService: AuthenticationService
+  ) {}
+
+  getDisplayedCredentials(): Observable<DisplayedCredential[]> {
+    return this.http
+      .get('http://localhost:8080/credentials', {
+        headers: {
+          Authorization: `Bearer ${this.authenticationService.getToken()}`,
+        },
+      })
+      .pipe(
+        map((res: any[]) =>
+          res.map((cred) => ({
+            id: cred['_id'],
+            login: cred['login'],
+            displayName: cred['display_name'],
+            host: cred['host'],
+          }))
+        ),
+        catchError((error) => {
+          alert(error)
+          return of([])
+        })
+      )
+  }
+
+  getPassword(login: string, host: string): Observable<string> {
+    return this.http
+      .post(
+        'http://localhost:8080/credentials/password',
+        {
+          login,
+          host,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${this.authenticationService.getToken()}`,
+          },
+        }
+      )
+      .pipe(
+        map((a: string) => a),
+        catchError((error) => {
+          alert(error.message)
+          return of(undefined)
+        })
+      )
+  }
+}

@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core'
 import { Router } from '@angular/router'
-import { HttpService } from './http.service'
+import { AuthBackendService } from './auth-backend.service'
 
 @Injectable({
   providedIn: 'root',
@@ -9,12 +9,12 @@ export class AuthenticationService {
   private tokenKey = 'token'
 
   constructor(
-    private httpService: HttpService,
+    private authBackendService: AuthBackendService,
     private router: Router
   ) {}
 
   public login(email: string, password: string): void {
-    this.httpService.login(email, password).subscribe((token) => {
+    this.authBackendService.login(email, password).subscribe((token) => {
       localStorage.setItem(this.tokenKey, token)
       this.router.navigate(['/'])
     })
@@ -26,7 +26,7 @@ export class AuthenticationService {
     firstName: string,
     lastName: string
   ): void {
-    this.httpService
+    this.authBackendService
       .register(email, password, firstName, lastName)
       .subscribe((token) => {
         localStorage.setItem(this.tokenKey, token)

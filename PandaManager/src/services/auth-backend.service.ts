@@ -1,12 +1,13 @@
 import { HttpClient } from '@angular/common/http'
-import { Host, Injectable } from '@angular/core'
-import { Observable, delay, map, of } from 'rxjs'
+import { Injectable } from '@angular/core'
+import { Observable, catchError, map, of } from 'rxjs'
 import { DisplayedCredential } from '../models/contracts/displayed-credentials-response'
+import { AuthenticationService } from './authentication.service'
 
 @Injectable({
   providedIn: 'root',
 })
-export class HttpService {
+export class AuthBackendService {
   constructor(private http: HttpClient) {}
 
   public login(email: string, master_password: string): Observable<string> {
@@ -20,7 +21,6 @@ export class HttpService {
         { responseType: 'json' }
       )
       .pipe(map((res) => res['access_token']))
-    // return of('token mock')
   }
 
   public register(
@@ -41,16 +41,5 @@ export class HttpService {
         responseType: 'text',
       }
     )
-
-    // return of('token mock')
-  }
-
-  getDisplayedCredentials(): Observable<DisplayedCredential[]> {
-    this.http.get('http://localhost:8080/app_displayed_credentials')
-
-    return of([
-      { host: 'first host', login: 'first login' },
-      { host: 'second host', login: 'second login' },
-    ]).pipe(delay(2000))
   }
 }

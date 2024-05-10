@@ -16,24 +16,13 @@
         <div class="password-input-wrapper">
           <input
             class="password-input"
-            [type]="
-              shownPasswordDict[createDisplayedCredentialId(credential)]
-                ? 'text'
-                : 'password'
-            "
+            [type]="shownPasswordDict[credential.id] ? 'text' : 'password'"
             type="text"
             readonly
-            [value]="
-              shownPasswordDict[createDisplayedCredentialId(credential)] ??
-              'password template'
-            "
+            [value]="shownPasswordDict[credential.id] ?? 'password template'"
           />
           <div class="toggle-icon" (click)="showPasswordClicked(credential)">
-            {{
-              shownPasswordDict[createDisplayedCredentialId(credential)]
-                ? '👁'
-                : '🔒'
-            }}
+            {{ shownPasswordDict[credential.id] ? '👁' : '🔒' }}
           </div>
         </div>
       </mat-expansion-panel>
