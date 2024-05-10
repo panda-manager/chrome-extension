@@ -5,6 +5,7 @@ import { LoginContainerComponent } from '../components/login-container/login-con
 import { RegisterContainerComponent } from '../components/register-container/register-container.component'
 import { AuthGuard } from '../guards/auth-gard'
 import { HomeComponent } from '../components/home/home.component'
+import { CreateNewCredentialComponent } from '../components/create-new-credential/create-new-credential.component'
 
 export const routes: Routes = [
   {
@@ -30,7 +31,14 @@ export const routes: Routes = [
   {
     path: 'vault',
     canActivate: [AuthGuard],
-    component: VaultContainerComponent,
-    pathMatch: 'full',
+
+    children: [
+      { path: '', component: VaultContainerComponent, pathMatch: 'full' },
+      {
+        path: 'create',
+        component: CreateNewCredentialComponent,
+        pathMatch: 'full',
+      },
+    ],
   },
 ]

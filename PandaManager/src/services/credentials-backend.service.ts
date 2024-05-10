@@ -30,7 +30,7 @@ export class CredentialsBackendService {
           }))
         ),
         catchError((error) => {
-          alert(error)
+          alert(error.message)
           return of([])
         })
       )
@@ -52,6 +52,35 @@ export class CredentialsBackendService {
       )
       .pipe(
         map((a: string) => a),
+        catchError((error) => {
+          alert(error.message)
+          return of(undefined)
+        })
+      )
+  }
+
+  createCredentials(
+    displayName: string,
+    host: string,
+    login: string,
+    password: string
+  ) {
+    return this.http
+      .post(
+        'http://localhost:8080/credentials',
+        {
+          login,
+          display_name: displayName,
+          password: password,
+          host,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${this.authenticationService.getToken()}`,
+          },
+        }
+      )
+      .pipe(
         catchError((error) => {
           alert(error.message)
           return of(undefined)

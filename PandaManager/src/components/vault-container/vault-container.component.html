@@ -3,7 +3,12 @@
     <mat-spinner></mat-spinner>
   </div>
 } @else {
-  <input class="search" [formControl]="searchControl" placeholder="Search" />
+  <div class="header">
+    <button routerLink="create" mat-mini-fab color="primary">
+      <mat-icon>add</mat-icon>
+    </button>
+    <input class="search" [formControl]="searchControl" placeholder="Search" />
+  </div>
   <mat-accordion>
     @for (credential of displayedCredentials; track $index) {
       <mat-expansion-panel hideToggle>

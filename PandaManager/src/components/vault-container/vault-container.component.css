@@ -18,10 +18,16 @@ mat-accordion {
   height: 100%;
 }
 
-.search {
-  align-self: center;
-  width: 241px;
+.header {
+  width: 100%;
+  display: flex;
+  align-items: center;
   margin: 9px;
+}
+
+.search {
+  margin-left: 30px;
+  width: 241px;
   border-radius: 20px;
   border: 1px solid #d9d9d9;
   font-size: 1rem;

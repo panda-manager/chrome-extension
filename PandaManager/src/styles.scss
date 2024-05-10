@@ -10,3 +10,8 @@ body {
   margin: 0;
   font-family: Roboto, 'Helvetica Neue', sans-serif;
 }
+
+.cdk-global-scrollblock {
+  position: static;
+  overflow: hidden !important;
+}

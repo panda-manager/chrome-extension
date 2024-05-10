@@ -10,6 +10,8 @@ import { MatInputModule } from '@angular/material/input'
 import { debounceTime, filter, mergeMap, switchMap } from 'rxjs'
 import { MatFormFieldModule } from '@angular/material/form-field'
 import { MatIconModule } from '@angular/material/icon'
+import { MatButtonModule } from '@angular/material/button'
+import { Router, RouterModule } from '@angular/router'
 
 @Component({
   selector: 'app-vault-container',
@@ -24,6 +26,8 @@ import { MatIconModule } from '@angular/material/icon'
     MatInputModule,
     MatFormFieldModule,
     MatIconModule,
+    MatButtonModule,
+    RouterModule,
   ],
 })
 export class VaultContainerComponent implements OnInit {
@@ -36,6 +40,7 @@ export class VaultContainerComponent implements OnInit {
 
   constructor(
     private credentialsBackendService: CredentialsBackendService,
+    // public router: Router
     private dialog: MatDialog
   ) {}
 
