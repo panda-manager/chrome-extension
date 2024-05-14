@@ -1,0 +1,7 @@
+@for (option of options; track $index; let last = $last) {
+  <span class="option">{{ option }}</span>
+
+  @if (!last) {
+    <div class="divider"></div>
+  }
+}

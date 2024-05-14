@@ -34,7 +34,13 @@
   "host_permissions": ["http://localhost:8080/*", "*://*/"],
   "web_accessible_resources": [
     {
-      "resources": ["index.html", "assets/*", "main.js", "*.js"],
+      "resources": [
+        "index.html",
+        "auto-fill.html",
+        "assets/*",
+        "main.js",
+        "*.js"
+      ],
       "matches": ["<all_urls>"]
     }
   ]

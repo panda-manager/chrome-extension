@@ -1,5 +1,8 @@
-<pm-navbar></pm-navbar>
-
-<main>
-  <router-outlet></router-outlet>
-</main>
+@if (isIframe()) {
+  <pm-auto-fill-popup></pm-auto-fill-popup>
+} @else {
+  <pm-navbar></pm-navbar>
+  <main>
+    <router-outlet></router-outlet>
+  </main>
+}

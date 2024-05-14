@@ -41,20 +41,20 @@ const newPageLoad = () => {
     triggerBtn.style.left = inputRect.left + 'px'
     triggerBtn.style.top = inputRect.top + inputRect.height / 2 + 'px'
 
-    // input.parentElement.insertBefore(triggerBtn, input)
+    triggerBtn.addEventListener('click', () => {
+      const htmlURL = chrome.runtime.getURL('index.html')
+      const popup = document.createElement('iframe')
+      popup.id = 'pm-iframe'
+      popup.src = htmlURL
+      popup.style['z-index'] = 1000000
+      popup.style.width = '250px'
+      popup.style.position = 'absolute'
+      popup.style.left = inputRect.left + 'px'
+      popup.style.border = 'none'
+      popup.style.top = 20 + inputRect.top + inputRect.height / 2 + 'px'
+      document.body.appendChild(popup)
+    })
     document.body.appendChild(triggerBtn)
-
-    // popupDiv.style.backgroundColor = 'white'
-    // const popupDiv = document.createElement('div')
-    // popupDiv.style.position = 'absolute'
-    // popupDiv.style.left = inputRect.left + 'px'
-    // popupDiv.style.top = inputRect.top - (inputRect.height + 120) + 'px'
-    // popupDiv.style.backgroundColor = 'white'
-    // popupDiv.style.width = '250px'
-    // popupDiv.style.height = '120px'
-    // popupDiv.style.padding = '10px'
-    // popupDiv.style.borderRadius = '5px'
-    // popupDiv.style.border = 'solid 1px black'
 
     // const title = document.createElement('p')
     // title.innerText = 'Enter password for this page'

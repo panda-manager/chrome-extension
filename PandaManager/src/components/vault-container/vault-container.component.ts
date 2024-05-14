@@ -40,7 +40,7 @@ export class VaultContainerComponent implements OnInit {
 
   constructor(
     private credentialsBackendService: CredentialsBackendService,
-    // public router: Router
+    public router: Router,
     private dialog: MatDialog
   ) {}
 
