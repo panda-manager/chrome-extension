@@ -28,7 +28,8 @@
     "sandbox": "sandbox allow-scripts allow-forms allow-popups allow-modals; script-src 'self' 'unsafe-inline' 'unsafe-eval'; child-src 'self';"
   },
   "background": {
-    "service_worker": "background.js"
+    "service_worker": "background.js",
+    "type": "module"
   },
   "host_permissions": ["http://localhost:8080/*", "*://*/"],
   "web_accessible_resources": [

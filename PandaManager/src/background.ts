@@ -1,5 +1,5 @@
 chrome.webNavigation.onCompleted.addListener(({ tabId, frameId, url }) => {
-  console.log('background word')
+  console.log('background work')
   if (frameId !== 0) return
   if (url.startsWith('chrome://')) return undefined
 
@@ -12,12 +12,12 @@ chrome.webNavigation.onCompleted.addListener(({ tabId, frameId, url }) => {
   // })
 
   chrome.scripting.executeScript({
-    target: { tabId },
-    function: newPageLoad,
+    target: { tabId, frameIds: [frameId] },
+    func: newPageLoad,
   })
 })
 
-const newPageLoad = async () => {
+const newPageLoad = () => {
   console.log('pm page 1')
 
   let inputs = document.getElementsByTagName('input')
