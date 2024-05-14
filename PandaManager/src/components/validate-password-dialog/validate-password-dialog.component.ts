@@ -12,14 +12,13 @@ import {
   MatDialogActions,
   MatDialogClose,
 } from '@angular/material/dialog'
-import { VaultCredentialDialogData } from './vault-credentials-dialog-data'
 import { CredentialsBackendService } from '../../services/credentials-backend.service'
 import { EMPTY, catchError } from 'rxjs'
 
 @Component({
-  selector: 'app-vault-credentials-dialog',
-  templateUrl: './vault-credentials-dialog.component.html',
-  styleUrls: ['./vault-credentials-dialog.component.css'],
+  selector: 'pm-validate-password-dialog-dialog',
+  templateUrl: './validate-password-dialog.component.html',
+  styleUrls: ['./validate-password-dialog.component.css'],
   standalone: true,
   imports: [
     MatFormFieldModule,
@@ -32,12 +31,11 @@ import { EMPTY, catchError } from 'rxjs'
     MatDialogClose,
   ],
 })
-export class VaultCredentialDialogComponent {
+export class ValidatePasswordDialogComponent {
   masterPassword = ''
   error = ''
   constructor(
-    public dialogRef: MatDialogRef<VaultCredentialDialogComponent>,
-    @Inject(MAT_DIALOG_DATA) public data: VaultCredentialDialogData,
+    public dialogRef: MatDialogRef<ValidatePasswordDialogComponent>,
     private credentialsBackendService: CredentialsBackendService
   ) {}
 

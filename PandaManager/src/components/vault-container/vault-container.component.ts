@@ -5,13 +5,13 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner'
 import { MatExpansionModule } from '@angular/material/expansion'
 import { FormControl, FormsModule, ReactiveFormsModule } from '@angular/forms'
 import { MatDialog } from '@angular/material/dialog'
-import { VaultCredentialDialogComponent } from '../vault-credentials-dialog/vault-credentials-dialog.component'
 import { MatInputModule } from '@angular/material/input'
 import { debounceTime, filter, mergeMap, switchMap } from 'rxjs'
 import { MatFormFieldModule } from '@angular/material/form-field'
 import { MatIconModule } from '@angular/material/icon'
 import { MatButtonModule } from '@angular/material/button'
 import { Router, RouterModule } from '@angular/router'
+import { ValidatePasswordDialogComponent } from '../validate-password-dialog/validate-password-dialog.component'
 
 @Component({
   selector: 'app-vault-container',
@@ -93,16 +93,11 @@ export class VaultContainerComponent implements OnInit {
     }
 
     this.dialog
-      .open(VaultCredentialDialogComponent, {
-        data: {
-          login: displayedCredential.login,
-          host: displayedCredential.host,
-        },
-      })
+      .open(ValidatePasswordDialogComponent)
       .afterClosed()
       .pipe(
         filter((result) => result),
-        switchMap((result) =>
+        switchMap((masterPassword) =>
           this.credentialsBackendService.getPassword(
             displayedCredential.login,
             displayedCredential.host
