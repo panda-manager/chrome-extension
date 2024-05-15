@@ -1,5 +1,33 @@
+const handleInputAutofill = (passwordInput: HTMLInputElement) => {
+  // const title = document.createElement('p')
+  // title.innerText = 'Enter password for this page'
+  // const passwordInput = document.createElement('input')
+  // passwordInput.type = 'password'
+  // const addPasswordButton = document.createElement('button')
+  // addPasswordButton.innerText = 'Add password'
+  // const goAwayButton = document.createElement('button')
+  // goAwayButton.innerText = 'fuck off'
+  // goAwayButton.addEventListener('click', () => {
+  //   popupDiv.remove()
+  // })
+  // popupDiv.appendChild(title)
+  // popupDiv.appendChild(passwordInput)
+  // popupDiv.appendChild(addPasswordButton)
+  // popupDiv.appendChild(goAwayButton)
+  // console.log('pm page append popup')
+  // document.body.appendChild(popupDiv)
+  //   addPasswordButton.addEventListener('click', () => {
+  //     if (passwordInput.value.length < 8) {
+  //       alert('Password must be at least 8 characters.')
+  //       return
+  //     }
+  //     passwords.push({ password: passwordInput.value, url: location.href })
+  //     popupDiv.remove()
+  //     input.value = passwordInput.value
+  //   })
+}
+
 chrome.webNavigation.onCompleted.addListener(({ tabId, frameId, url }) => {
-  console.log('background work')
   if (frameId !== 0) return
   if (url.startsWith('chrome://')) return undefined
 
@@ -15,83 +43,109 @@ chrome.webNavigation.onCompleted.addListener(({ tabId, frameId, url }) => {
     target: { tabId, frameIds: [frameId] },
     func: newPageLoad,
   })
+
+  // chrome.scripting.executeScript({
+  //   target: { tabId, frameIds: [frameId] },
+  //   func: closePopupIfOpened,
+  // })
 })
 
 const newPageLoad = () => {
-  console.log('pm page 1')
-
   let inputs = document.getElementsByTagName('input')
   const inputLength = inputs.length
   for (let i = 0; i < inputLength; i++) {
-    const input = inputs.item(i)
-    if (input.type !== 'password') continue
+    const passwordInput = inputs.item(i)
+    if (passwordInput.type !== 'password') continue
 
-    // const { passwords } = await chrome.storage.sync.get('passwords')
-    const passwords = []
+    if (passwordInput.getBoundingClientRect().x == 0) continue
 
-    console.log('pm page start creating div')
+    const imageUrl = chrome.runtime.getURL('/assets/panda128.png')
 
-    const inputRect = input.getBoundingClientRect()
-    const triggerBtn = document.createElement('span')
+    const triggerSize = 24
+    passwordInput.style['background-image'] = `url("${imageUrl}")`
 
-    triggerBtn.id = 'pm-trigger'
-    triggerBtn.innerText = '🐼'
-    triggerBtn.style['z-index'] = 100
-    triggerBtn.style.position = 'absolute'
-    triggerBtn.style.left = inputRect.left + 'px'
-    triggerBtn.style.top = inputRect.top + inputRect.height / 2 + 'px'
+    passwordInput.style['background-repeat'] = 'no-repeat'
+    passwordInput.style['background-position'] = 'right'
+    passwordInput.style['background-attachment'] = 'scroll'
+    passwordInput.style['background-size'] = triggerSize + 'px'
+    passwordInput.style['box-shadow'] = 'none'
+    passwordInput.style['cursor'] = 'pointer'
+    passwordInput.classList.add('pm-password-input')
+    passwordInput.addEventListener('mousemove', (event: MouseEvent) => {
+      const rect = passwordInput.getBoundingClientRect()
+      const distanceFromRight = rect.right - event.clientX
 
-    triggerBtn.addEventListener('click', () => {
+      if (distanceFromRight <= triggerSize) {
+        passwordInput.style.cursor = 'pointer'
+      } else {
+        passwordInput.style.cursor = 'auto'
+      }
+    })
+
+    passwordInput.addEventListener('click', (event: MouseEvent) => {
+      const rect = passwordInput.getBoundingClientRect()
+      const distanceFromRight = rect.right - event.clientX
+
+      if (distanceFromRight > triggerSize) {
+        return
+      }
+
+      const popupWidth = 202
+
       const htmlURL = chrome.runtime.getURL('index.html')
-      const popup = document.createElement('iframe')
+      let popup = document.createElement('iframe')
+      popup.classList.add('pm-pass-list-popup')
       popup.id = 'pm-iframe'
       popup.src = htmlURL
       popup.style['z-index'] = 1000000
-      popup.style.width = '250px'
+      popup.style.width = popupWidth + 'px'
       popup.style.position = 'absolute'
-      popup.style.left = inputRect.left + 'px'
+      // minus 20 is for spacing between the image and the popup
+      popup.style.left = rect.right - popupWidth - 20 + 'px'
       popup.style.border = 'none'
-      popup.style.top = 20 + inputRect.top + inputRect.height / 2 + 'px'
+      popup.style.top = rect.top + rect.height / 2 + 'px'
+      console.log('popup created')
+
       document.body.appendChild(popup)
     })
-    document.body.appendChild(triggerBtn)
-
-    // const title = document.createElement('p')
-    // title.innerText = 'Enter password for this page'
-
-    // const passwordInput = document.createElement('input')
-    // passwordInput.type = 'password'
-
-    // const addPasswordButton = document.createElement('button')
-    // addPasswordButton.innerText = 'Add password'
-
-    // const goAwayButton = document.createElement('button')
-    // goAwayButton.innerText = 'fuck off'
-    // goAwayButton.addEventListener('click', () => {
-    //   popupDiv.remove()
-    // })
-
-    // popupDiv.appendChild(title)
-    // popupDiv.appendChild(passwordInput)
-    // popupDiv.appendChild(addPasswordButton)
-    // popupDiv.appendChild(goAwayButton)
-
-    // console.log('pm page append popup')
-
-    // document.body.appendChild(popupDiv)
-
-    //   addPasswordButton.addEventListener('click', () => {
-    //     if (passwordInput.value.length < 8) {
-    //       alert('Password must be at least 8 characters.')
-    //       return
-    //     }
-
-    //     passwords.push({ password: passwordInput.value, url: location.href })
-
-    //     popupDiv.remove()
-    //     input.value = passwordInput.value
-    //   })
   }
 
-  console.log('pm page end')
+  // closePopupIfOpened
+  document.body.addEventListener('click', (event) => {
+    console.log(event)
+    const popup = document
+      .getElementsByClassName('pm-pass-list-popup')
+      .item(0) as HTMLIFrameElement
+
+    console.log(popup)
+    if (!popup) {
+      return
+    }
+
+    const passwordInput = document
+      .getElementsByClassName('pm-password-input')
+      .item(0) as HTMLIFrameElement
+
+    const rect = passwordInput.getBoundingClientRect()
+    const distanceFromRight = rect.right - event.clientX
+
+    // click on the trigger
+    if (
+      passwordInput.contains(event.target as any) &&
+      distanceFromRight <= 24
+    ) {
+      return
+    }
+
+    // click inside the popup
+    if (popup.contains(event.target as any)) {
+      return
+    }
+
+    // Clicked outside popup and not on the open button\
+    console.log('delete')
+    document.body.removeChild(popup)
+  })
 }
+
+const closePopupIfOpened = async () => {}
