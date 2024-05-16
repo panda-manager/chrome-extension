@@ -1,31 +1,4 @@
-const handleInputAutofill = (passwordInput: HTMLInputElement) => {
-  // const title = document.createElement('p')
-  // title.innerText = 'Enter password for this page'
-  // const passwordInput = document.createElement('input')
-  // passwordInput.type = 'password'
-  // const addPasswordButton = document.createElement('button')
-  // addPasswordButton.innerText = 'Add password'
-  // const goAwayButton = document.createElement('button')
-  // goAwayButton.innerText = 'fuck off'
-  // goAwayButton.addEventListener('click', () => {
-  //   popupDiv.remove()
-  // })
-  // popupDiv.appendChild(title)
-  // popupDiv.appendChild(passwordInput)
-  // popupDiv.appendChild(addPasswordButton)
-  // popupDiv.appendChild(goAwayButton)
-  // console.log('pm page append popup')
-  // document.body.appendChild(popupDiv)
-  //   addPasswordButton.addEventListener('click', () => {
-  //     if (passwordInput.value.length < 8) {
-  //       alert('Password must be at least 8 characters.')
-  //       return
-  //     }
-  //     passwords.push({ password: passwordInput.value, url: location.href })
-  //     popupDiv.remove()
-  //     input.value = passwordInput.value
-  //   })
-}
+import { getPathUrl } from './utils/path-utill'
 
 chrome.webNavigation.onCompleted.addListener(({ tabId, frameId, url }) => {
   if (frameId !== 0) return
@@ -39,18 +12,33 @@ chrome.webNavigation.onCompleted.addListener(({ tabId, frameId, url }) => {
   //   priority: 1,
   // })
 
-  chrome.scripting.executeScript({
-    target: { tabId, frameIds: [frameId] },
-    func: newPageLoad,
-  })
+  chrome.storage.local.get('token').then((data) => {
+    if (!data['token']) {
+      return
+    }
 
-  // chrome.scripting.executeScript({
-  //   target: { tabId, frameIds: [frameId] },
-  //   func: closePopupIfOpened,
-  // })
+    fetch(
+      'http://localhost:8080/credentials/existence?host=' + getPathUrl(url),
+      {
+        method: 'GET',
+        headers: { Authorization: 'Bearer ' + data['token'] },
+      }
+    )
+      .then((r) => r.json())
+      .then((res) => {
+        if (!res.data) return
+
+        chrome.scripting.executeScript({
+          target: { tabId, frameIds: [frameId] },
+          func: newPageLoad,
+          args: [data['token'], getPathUrl(url)],
+        })
+      })
+      .catch((error) => console.error(error.message))
+  })
 })
 
-const newPageLoad = () => {
+const newPageLoad = (jwtToken: string, url: string) => {
   let inputs = document.getElementsByTagName('input')
   const inputLength = inputs.length
   for (let i = 0; i < inputLength; i++) {
@@ -65,8 +53,6 @@ const newPageLoad = () => {
     }
 
     const passwordInput = input
-
-    if (passwordInput.getBoundingClientRect().x == 0) continue
 
     const imageUrl = chrome.runtime.getURL('/assets/panda128.png')
 
