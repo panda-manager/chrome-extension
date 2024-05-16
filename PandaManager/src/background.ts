@@ -92,7 +92,7 @@ const newPageLoad = () => {
     })
 
     passwordInput.addEventListener('click', (event: MouseEvent) => {
-      if (document.getElementsByClassName('pm-pass-list-popup').length === 0) {
+      if (document.getElementsByClassName('pm-pass-list-popup').length !== 0) {
         return
       }
 
