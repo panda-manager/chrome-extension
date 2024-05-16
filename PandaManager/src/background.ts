@@ -54,8 +54,17 @@ const newPageLoad = () => {
   let inputs = document.getElementsByTagName('input')
   const inputLength = inputs.length
   for (let i = 0; i < inputLength; i++) {
-    const passwordInput = inputs.item(i)
-    if (passwordInput.type !== 'password') continue
+    const input = inputs.item(i)
+
+    // Element is hidden
+    if (window.getComputedStyle(input).display === 'none') continue
+
+    if (input.type !== 'password') {
+      input.classList.add('pm-username-input')
+      continue
+    }
+
+    const passwordInput = input
 
     if (passwordInput.getBoundingClientRect().x == 0) continue
 
@@ -83,6 +92,10 @@ const newPageLoad = () => {
     })
 
     passwordInput.addEventListener('click', (event: MouseEvent) => {
+      if (document.getElementsByClassName('pm-pass-list-popup').length === 0) {
+        return
+      }
+
       const rect = passwordInput.getBoundingClientRect()
       const distanceFromRight = rect.right - event.clientX
 
@@ -104,7 +117,6 @@ const newPageLoad = () => {
       popup.style.left = rect.right - popupWidth - 20 + 'px'
       popup.style.border = 'none'
       popup.style.top = rect.top + rect.height / 2 + 'px'
-      console.log('popup created')
 
       document.body.appendChild(popup)
     })
@@ -112,19 +124,17 @@ const newPageLoad = () => {
 
   // closePopupIfOpened
   document.body.addEventListener('click', (event) => {
-    console.log(event)
     const popup = document
       .getElementsByClassName('pm-pass-list-popup')
       .item(0) as HTMLIFrameElement
 
-    console.log(popup)
     if (!popup) {
       return
     }
 
     const passwordInput = document
       .getElementsByClassName('pm-password-input')
-      .item(0) as HTMLIFrameElement
+      .item(0) as HTMLInputElement
 
     const rect = passwordInput.getBoundingClientRect()
     const distanceFromRight = rect.right - event.clientX
@@ -142,8 +152,34 @@ const newPageLoad = () => {
       return
     }
 
-    // Clicked outside popup and not on the open button\
-    console.log('delete')
+    // Clicked outside popup and not on the open button
+    document.body.removeChild(popup)
+  })
+
+  // get data from iframe
+  window.addEventListener('message', (message) => {
+    const popup = document
+      .getElementsByClassName('pm-pass-list-popup')
+      .item(0) as HTMLIFrameElement
+    if (!popup) {
+      return
+    }
+
+    if (message.source !== popup.contentWindow) {
+      // Skip message in this event listener
+      return
+    }
+
+    const passwordInput = document
+      .getElementsByClassName('pm-password-input')
+      .item(0) as HTMLInputElement
+
+    const usernameInput = document
+      .getElementsByClassName('pm-username-input')
+      .item(0) as HTMLInputElement
+
+    passwordInput.value = message.data.password
+    usernameInput.value = message.data.login
     document.body.removeChild(popup)
   })
 }
