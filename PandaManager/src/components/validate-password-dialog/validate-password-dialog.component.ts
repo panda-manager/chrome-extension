@@ -4,8 +4,6 @@ import { MatButtonModule } from '@angular/material/button'
 import { MatFormFieldModule } from '@angular/material/form-field'
 import { MatInputModule } from '@angular/material/input'
 import {
-  MatDialog,
-  MAT_DIALOG_DATA,
   MatDialogRef,
   MatDialogTitle,
   MatDialogContent,
@@ -34,6 +32,7 @@ import { EMPTY, catchError } from 'rxjs'
 export class ValidatePasswordDialogComponent {
   masterPassword = ''
   error = ''
+
   constructor(
     public dialogRef: MatDialogRef<ValidatePasswordDialogComponent>,
     private credentialsBackendService: CredentialsBackendService
