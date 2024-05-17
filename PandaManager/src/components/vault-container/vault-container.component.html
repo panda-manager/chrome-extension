@@ -22,12 +22,17 @@
           <input
             class="password-input"
             [type]="shownPasswordDict[credential.id] ? 'text' : 'password'"
-            type="text"
             readonly
-            [value]="shownPasswordDict[credential.id] ?? 'password template'"
+            [value]="shownPasswordDict[credential.id] ?? 'template'"
           />
           <div class="toggle-icon" (click)="showPasswordClicked(credential)">
             {{ shownPasswordDict[credential.id] ? '👁' : '🔒' }}
+          </div>
+          <div
+            class="delete-icon"
+            (click)="deleteCredentialClicked(credential)"
+          >
+            <mat-icon>delete</mat-icon>
           </div>
         </div>
       </mat-expansion-panel>

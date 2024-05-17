@@ -36,7 +36,23 @@ export class CredentialsBackendService {
       )
   }
 
-  public validateMasterPassword(password: string) {
+  deleteCredential(host: string, login: string): Observable<boolean> {
+    return this.http
+      .delete('http://localhost:8080/credentials', {
+        body: { host, login },
+        headers: {
+          Authorization: `Bearer ${this.authenticationService.getToken()}`,
+        },
+      })
+      .pipe(
+        map(() => true),
+        catchError((_error) => {
+          return of(false)
+        })
+      )
+  }
+
+  validateMasterPassword(password: string) {
     return this.http.post(
       'http://localhost:8080/auth/validate/master',
       {

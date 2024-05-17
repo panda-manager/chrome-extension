@@ -1,8 +1,12 @@
-import { Component, OnInit } from '@angular/core'
+import { Component, OnInit, ViewChild } from '@angular/core'
 import { CredentialsBackendService } from '../../services/credentials-backend.service'
 import { DisplayedCredential } from '../../models/contracts/displayed-credentials-response'
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner'
-import { MatExpansionModule } from '@angular/material/expansion'
+import {
+  MatAccordion,
+  MatExpansionModule,
+  MatExpansionPanel,
+} from '@angular/material/expansion'
 import { FormControl, FormsModule, ReactiveFormsModule } from '@angular/forms'
 import { MatDialog } from '@angular/material/dialog'
 import { MatInputModule } from '@angular/material/input'
@@ -38,6 +42,9 @@ export class VaultContainerComponent implements OnInit {
   searchControl = new FormControl()
   password: string = undefined
 
+  @ViewChild(MatAccordion)
+  matAccordionView: MatAccordion
+
   constructor(
     private credentialsBackendService: CredentialsBackendService,
     public router: Router,
@@ -63,6 +70,27 @@ export class VaultContainerComponent implements OnInit {
             displayedCredentials.host.includes(value) ||
             displayedCredentials.login.includes(value)
         )
+      })
+  }
+
+  deleteCredentialClicked(displayedCredential: DisplayedCredential) {
+    this.credentialsBackendService
+      .deleteCredential(displayedCredential.host, displayedCredential.login)
+      .subscribe((res) => {
+        this.matAccordionView.closeAll()
+        if (res) {
+          this.displayedCredentialsFromServer = [
+            ...this.displayedCredentialsFromServer.filter(
+              (cred) => cred.id !== displayedCredential.id
+            ),
+          ]
+
+          this.displayedCredentials = [
+            ...this.displayedCredentials.filter(
+              (cred) => cred.id !== displayedCredential.id
+            ),
+          ]
+        }
       })
   }
 
