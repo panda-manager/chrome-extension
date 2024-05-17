@@ -11,6 +11,7 @@ import { MatFormFieldModule } from '@angular/material/form-field'
 import { MatInputModule } from '@angular/material/input'
 import { Router, RouterModule } from '@angular/router'
 import { CredentialsBackendService } from '../../services/credentials-backend.service'
+import { getPathUrl } from '../../utils/path-utill'
 
 @Component({
   selector: 'pm-create-new-credential',
@@ -44,16 +45,17 @@ export class CreateNewCredentialComponent implements OnInit {
 
     let queryOptions = { active: true, currentWindow: true }
     chrome.tabs.query(queryOptions).then((urls) => {
+      getPathUrl(urls[0].url)
       this.form.get('displayName').setValue(urls[0].title)
-      this.form.get('host').setValue(urls[0].url)
+      this.form.get('host').setValue(getPathUrl(urls[0].url))
     })
   }
 
   public onSubmit() {
     this.credentialsBackendService
       .createCredentials(
-        this.form.value.host,
         this.form.value.displayName,
+        this.form.value.host,
         this.form.value.login,
         this.form.value.password
       )

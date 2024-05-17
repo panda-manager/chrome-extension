@@ -1,0 +1,13 @@
+@if (isLoading) {
+  <div class="loading">
+    <mat-spinner></mat-spinner>
+  </div>
+} @else {
+  @for (option of options; track $index; let last = $last) {
+    <span class="option" (click)="onOptionClicked(option)">{{ option }}</span>
+
+    @if (!last) {
+      <div class="divider"></div>
+    }
+  }
+}

@@ -15,6 +15,7 @@ export class AuthenticationService {
 
   public login(email: string, password: string): void {
     this.authBackendService.login(email, password).subscribe((token) => {
+      chrome.storage.local.set({ [this.tokenKey]: token })
       localStorage.setItem(this.tokenKey, token)
       this.router.navigate(['/'])
     })
