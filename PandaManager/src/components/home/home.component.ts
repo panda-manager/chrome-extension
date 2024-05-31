@@ -1,5 +1,4 @@
 import { Component, OnInit } from '@angular/core'
-
 @Component({
   selector: 'pm-home',
   standalone: true,

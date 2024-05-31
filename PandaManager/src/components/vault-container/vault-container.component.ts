@@ -10,12 +10,13 @@ import {
 import { FormControl, FormsModule, ReactiveFormsModule } from '@angular/forms'
 import { MatDialog } from '@angular/material/dialog'
 import { MatInputModule } from '@angular/material/input'
-import { debounceTime, filter, mergeMap, switchMap } from 'rxjs'
+import { debounceTime, filter, map, mergeMap, switchMap } from 'rxjs'
 import { MatFormFieldModule } from '@angular/material/form-field'
 import { MatIconModule } from '@angular/material/icon'
 import { MatButtonModule } from '@angular/material/button'
 import { Router, RouterModule } from '@angular/router'
 import { ValidatePasswordDialogComponent } from '../validate-password-dialog/validate-password-dialog.component'
+import { decryptPill } from '../../utils/crypto-utils'
 
 @Component({
   selector: 'app-vault-container',
@@ -105,7 +106,7 @@ export class VaultContainerComponent implements OnInit {
 
     if (this.password) {
       this.credentialsBackendService
-        .getPassword(displayedCredential.login, displayedCredential.host)
+        .getPasswordPill(displayedCredential.login, displayedCredential.host)
         .subscribe((password) => {
           if (!password) {
             return
@@ -126,21 +127,23 @@ export class VaultContainerComponent implements OnInit {
       .pipe(
         filter((result) => result),
         switchMap((masterPassword) =>
-          this.credentialsBackendService.getPassword(
-            displayedCredential.login,
-            displayedCredential.host
-          )
+          this.credentialsBackendService
+            .getPasswordPill(
+              displayedCredential.login,
+              displayedCredential.host
+            )
+            .pipe(map((pill) => [pill, masterPassword] as const))
         )
       )
-      .subscribe((password) => {
-        if (!password) {
+      .subscribe(([pill, masterPassword]) => {
+        if (!pill) {
           return
         }
 
-        this.password = password
+        this.password = masterPassword
         this.shownPasswordDict = {
           ...this.shownPasswordDict,
-          [displayedCredential.id]: password,
+          [displayedCredential.id]: decryptPill(pill, masterPassword),
         }
       })
   }

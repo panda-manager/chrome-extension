@@ -66,7 +66,7 @@ export class CredentialsBackendService {
     )
   }
 
-  getPassword(login: string, host: string): Observable<string> {
+  getPasswordPill(login: string, host: string): Observable<string> {
     return this.http
       .post(
         'http://localhost:8080/credentials/password',

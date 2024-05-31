@@ -12,6 +12,10 @@ import { MatInputModule } from '@angular/material/input'
 import { Router, RouterModule } from '@angular/router'
 import { CredentialsBackendService } from '../../services/credentials-backend.service'
 import { getPathUrl } from '../../utils/path-utill'
+import { MatDialog } from '@angular/material/dialog'
+import { ValidatePasswordDialogComponent } from '../validate-password-dialog/validate-password-dialog.component'
+import { filter, switchMap } from 'rxjs'
+import { createPill } from '../../utils/crypto-utils'
 
 @Component({
   selector: 'pm-create-new-credential',
@@ -32,7 +36,8 @@ export class CreateNewCredentialComponent implements OnInit {
 
   constructor(
     private router: Router,
-    private credentialsBackendService: CredentialsBackendService
+    private credentialsBackendService: CredentialsBackendService,
+    private dialog: MatDialog
   ) {}
 
   ngOnInit() {
@@ -52,12 +57,19 @@ export class CreateNewCredentialComponent implements OnInit {
   }
 
   public onSubmit() {
-    this.credentialsBackendService
-      .createCredentials(
-        this.form.value.displayName,
-        this.form.value.host,
-        this.form.value.login,
-        this.form.value.password
+    this.dialog
+      .open(ValidatePasswordDialogComponent)
+      .afterClosed()
+      .pipe(
+        filter((result) => result),
+        switchMap((masterPassword) =>
+          this.credentialsBackendService.createCredentials(
+            this.form.value.displayName,
+            this.form.value.host,
+            this.form.value.login,
+            createPill(this.form.value.password, masterPassword)
+          )
+        )
       )
       .subscribe(() => {
         this.router.navigate(['/vault'])
