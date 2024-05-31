@@ -8,6 +8,10 @@
       <mat-icon>add</mat-icon>
     </button>
     <input class="search" [formControl]="searchControl" placeholder="Search" />
+    <button mat-flat-button>
+      <mat-icon (click)="onSave()">save</mat-icon>
+      שמור שינויים
+    </button>
   </div>
   <mat-accordion>
     @for (credential of displayedCredentials; track $index) {
@@ -20,9 +24,10 @@
         </mat-expansion-panel-header>
         <div class="password-input-wrapper">
           <input
+            #form
             class="password-input"
             [type]="shownPasswordDict[credential.id] ? 'text' : 'password'"
-            readonly
+            [readonly]="!shownPasswordDict[credential.id]"
             [value]="shownPasswordDict[credential.id] ?? 'template'"
           />
           <div class="toggle-icon" (click)="showPasswordClicked(credential)">

@@ -31,12 +31,15 @@ export class AuthenticationService {
       .register(email, password, firstName, lastName)
       .subscribe((token) => {
         localStorage.setItem(this.tokenKey, token)
+        chrome.storage.local.set({ [this.tokenKey]: token })
         this.router.navigate(['/login'])
       })
   }
 
   public logout() {
     localStorage.removeItem(this.tokenKey)
+    chrome.storage.local.remove(this.tokenKey)
+
     this.router.navigate(['/login'])
   }
 

@@ -73,6 +73,8 @@ export class VaultContainerComponent implements OnInit {
       })
   }
 
+  onSave() {}
+
   deleteCredentialClicked(displayedCredential: DisplayedCredential) {
     this.credentialsBackendService
       .deleteCredential(displayedCredential.host, displayedCredential.login)
