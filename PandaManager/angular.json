@@ -20,6 +20,7 @@
             "customWebpackConfig": {
               "path": "./custom-webpack.config.ts"
             },
+            "allowedCommonJsDependencies": ["sha256", "crypto-js", "bcryptjs"],
             "outputPath": "dist/panda-manager",
             "index": "src/index.html",
             "main": "src/main.ts",
