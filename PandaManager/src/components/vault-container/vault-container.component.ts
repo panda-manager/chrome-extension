@@ -17,6 +17,7 @@ import { MatButtonModule } from '@angular/material/button'
 import { Router, RouterModule } from '@angular/router'
 import { ValidatePasswordDialogComponent } from '../validate-password-dialog/validate-password-dialog.component'
 import { decryptPill, createPill } from '../../utils/crypto-utils'
+import { NgxLoadingModule } from 'ngx-loading'
 
 @Component({
   selector: 'app-vault-container',
@@ -33,12 +34,14 @@ import { decryptPill, createPill } from '../../utils/crypto-utils'
     MatIconModule,
     MatButtonModule,
     RouterModule,
+    NgxLoadingModule,
   ],
 })
 export class VaultContainerComponent implements OnInit {
   displayedCredentialsFromServer: DisplayedCredential[]
   displayedCredentials: DisplayedCredential[]
-  isLoading = true
+  isCredentialLoading = true
+  isDecrtptionLoading = false
   shownPasswordDict: Record<string, string> = {}
   changedPasswordDict: Record<string, string> = {}
   searchControl = new FormControl()
@@ -53,14 +56,14 @@ export class VaultContainerComponent implements OnInit {
   ) {}
 
   ngOnInit() {
-    this.isLoading = true
+    this.isCredentialLoading = true
     this.credentialsBackendService
       .getDisplayedCredentials()
       .pipe()
       .subscribe((displayedCredentials) => {
         this.displayedCredentialsFromServer = displayedCredentials
         this.displayedCredentials = displayedCredentials
-        this.isLoading = false
+        this.isCredentialLoading = false
       })
 
     this.searchControl.valueChanges
@@ -130,6 +133,7 @@ export class VaultContainerComponent implements OnInit {
             return
           }
 
+          this.isDecrtptionLoading = true
           this.shownPasswordDict = {
             ...this.shownPasswordDict,
             [displayedCredential.id]: decryptPill(
@@ -137,6 +141,7 @@ export class VaultContainerComponent implements OnInit {
               this.masterPassword
             ),
           }
+          this.isDecrtptionLoading = false
         })
 
       return
@@ -147,14 +152,16 @@ export class VaultContainerComponent implements OnInit {
       .afterClosed()
       .pipe(
         filter((result) => result),
-        switchMap((masterPassword) =>
-          this.credentialsBackendService
+        switchMap((masterPassword) => {
+          this.isDecrtptionLoading = true
+
+          return this.credentialsBackendService
             .getPasswordPill(
               displayedCredential.login,
               displayedCredential.host
             )
             .pipe(map((pill) => [pill, masterPassword] as const))
-        )
+        })
       )
       .subscribe(([pill, masterPassword]) => {
         if (!pill) {
@@ -166,6 +173,8 @@ export class VaultContainerComponent implements OnInit {
           ...this.shownPasswordDict,
           [displayedCredential.id]: decryptPill(pill, masterPassword),
         }
+
+        this.isDecrtptionLoading = false
       })
   }
 

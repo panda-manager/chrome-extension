@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core'
 import { Router } from '@angular/router'
 import { AuthBackendService } from './auth-backend.service'
-
+import { map, tap } from 'rxjs'
 @Injectable({
   providedIn: 'root',
 })
@@ -13,12 +13,14 @@ export class AuthenticationService {
     private router: Router
   ) {}
 
-  public login(email: string, password: string): void {
-    this.authBackendService.login(email, password).subscribe((token) => {
-      chrome.storage.local.set({ [this.tokenKey]: token })
-      localStorage.setItem(this.tokenKey, token)
-      this.router.navigate(['/'])
-    })
+  public login(email: string, password: string) {
+    return this.authBackendService.login(email, password).pipe(
+      tap((token) => {
+        chrome.storage.local.set({ [this.tokenKey]: token })
+        localStorage.setItem(this.tokenKey, token)
+        this.router.navigate(['/'])
+      })
+    )
   }
 
   public register(

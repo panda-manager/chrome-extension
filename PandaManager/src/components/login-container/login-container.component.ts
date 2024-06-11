@@ -11,6 +11,8 @@ import { MatFormFieldModule } from '@angular/material/form-field'
 import { MatInputModule } from '@angular/material/input'
 import { MatButtonModule } from '@angular/material/button'
 import { RouterModule } from '@angular/router'
+import { NgxLoadingModule } from 'ngx-loading'
+import { EMPTY, catchError } from 'rxjs'
 
 @Component({
   selector: 'app-login-container',
@@ -24,10 +26,12 @@ import { RouterModule } from '@angular/router'
     MatInputModule,
     MatButtonModule,
     RouterModule,
+    NgxLoadingModule,
   ],
 })
 export class LoginContainerComponent implements OnInit {
   public loginForm!: FormGroup
+  public loading = false
 
   constructor(private authenticationService: AuthenticationService) {}
 
@@ -39,9 +43,20 @@ export class LoginContainerComponent implements OnInit {
   }
 
   public onSubmit() {
-    this.authenticationService.login(
-      this.loginForm.get('email')!.value,
-      this.loginForm!.get('password')!.value // TODO: need to be hashed
-    )
+    this.loading = true
+
+    this.authenticationService
+      .login(
+        this.loginForm.get('email')!.value,
+        this.loginForm!.get('password')!.value // TODO: need to be hashed
+      )
+      .pipe(
+        catchError((error) => {
+          this.loading = false
+          alert(error.message)
+          return EMPTY
+        })
+      )
+      .subscribe(() => (this.loading = false))
   }
 }
