@@ -4,10 +4,23 @@
   </div>
 } @else {
   <div class="header">
-    <button routerLink="create" mat-mini-fab color="primary">
-      <mat-icon>add</mat-icon>
-    </button>
-    <input class="search" [formControl]="searchControl" placeholder="Search" />
+    <div>
+      <button routerLink="create" mat-mini-fab color="primary">
+        <mat-icon>add</mat-icon>
+      </button>
+      <input
+        class="search"
+        [formControl]="searchControl"
+        placeholder="Search"
+      />
+    </div>
+    <div>
+      @if (isSavePasswordVisible()) {
+        <button class="save" mat-icon-button (click)="onUpdatePasswords()">
+          <mat-icon>save</mat-icon>
+        </button>
+      }
+    </div>
   </div>
   <mat-accordion>
     @for (credential of displayedCredentials; track $index) {
@@ -22,8 +35,9 @@
           <input
             class="password-input"
             [type]="shownPasswordDict[credential.id] ? 'text' : 'password'"
-            readonly
-            [value]="shownPasswordDict[credential.id] ?? 'template'"
+            [readonly]="!shownPasswordDict[credential.id]"
+            (input)="onPasswordChange($event, credential.id)"
+            [value]="getPasswordToShow(credential.id)"
           />
           <div class="toggle-icon" (click)="showPasswordClicked(credential)">
             {{ shownPasswordDict[credential.id] ? '👁' : '🔒' }}

@@ -16,7 +16,7 @@ import { MatIconModule } from '@angular/material/icon'
 import { MatButtonModule } from '@angular/material/button'
 import { Router, RouterModule } from '@angular/router'
 import { ValidatePasswordDialogComponent } from '../validate-password-dialog/validate-password-dialog.component'
-import { decryptPill } from '../../utils/crypto-utils'
+import { decryptPill, createPill } from '../../utils/crypto-utils'
 
 @Component({
   selector: 'app-vault-container',
@@ -40,9 +40,9 @@ export class VaultContainerComponent implements OnInit {
   displayedCredentials: DisplayedCredential[]
   isLoading = true
   shownPasswordDict: Record<string, string> = {}
+  changedPasswordDict: Record<string, string> = {}
   searchControl = new FormControl()
-  password: string = undefined
-
+  masterPassword: string = undefined
   @ViewChild(MatAccordion)
   matAccordionView: MatAccordion
 
@@ -72,6 +72,24 @@ export class VaultContainerComponent implements OnInit {
             displayedCredentials.login.includes(value)
         )
       })
+  }
+
+  onPasswordChange(event: any, id: string) {
+    if (event.target.value === this.shownPasswordDict[id]) {
+      delete this.changedPasswordDict[id]
+    } else {
+      this.changedPasswordDict[id] = event.target.value
+    }
+  }
+
+  isSavePasswordVisible() {
+    return Object.values(this.changedPasswordDict).length > 0
+  }
+  getPasswordToShow(id: string) {
+    if (id in this.changedPasswordDict) return this.changedPasswordDict[id]
+    if (id in this.shownPasswordDict) return this.shownPasswordDict[id]
+
+    return 'default'
   }
 
   deleteCredentialClicked(displayedCredential: DisplayedCredential) {
@@ -104,7 +122,7 @@ export class VaultContainerComponent implements OnInit {
       return
     }
 
-    if (this.password) {
+    if (this.masterPassword) {
       this.credentialsBackendService
         .getPasswordPill(displayedCredential.login, displayedCredential.host)
         .subscribe((password) => {
@@ -114,7 +132,10 @@ export class VaultContainerComponent implements OnInit {
 
           this.shownPasswordDict = {
             ...this.shownPasswordDict,
-            [displayedCredential.id]: password,
+            [displayedCredential.id]: decryptPill(
+              password,
+              this.masterPassword
+            ),
           }
         })
 
@@ -140,11 +161,30 @@ export class VaultContainerComponent implements OnInit {
           return
         }
 
-        this.password = masterPassword
+        this.masterPassword = masterPassword
         this.shownPasswordDict = {
           ...this.shownPasswordDict,
           [displayedCredential.id]: decryptPill(pill, masterPassword),
         }
       })
+  }
+
+  onUpdatePasswords() {
+    Object.entries(this.changedPasswordDict).map(([id, password]) => {
+      const cred = this.displayedCredentialsFromServer.find(
+        (cred) => cred.id === id
+      )
+      this.credentialsBackendService
+        .updateCredentials(
+          cred.host,
+          cred.login,
+          cred.displayName,
+          createPill(this.changedPasswordDict[id], this.masterPassword)
+        )
+        .subscribe(() => {
+          delete this.shownPasswordDict[id]
+          delete this.changedPasswordDict[id]
+        })
+    })
   }
 }

@@ -56,11 +56,6 @@ interface HashedCredentials {
   password: string
 }
 
-interface HashedCredentials {
-  username: string
-  password: string
-}
-
 export const hashCredentials = (
   username: string,
   masterPassword: string
@@ -78,7 +73,3 @@ export const hashCredentials = (
     password: '', //bcrypt.hashSync(masterPassword, salt),
   }
 }
-
-//  CryptoJS.AES.encrypt('aaa', this.key).toString()
-
-//  CryptoJS.AES.decrypt(this.b, this.key).toString(CryptoJS.enc.Utf8)

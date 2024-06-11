@@ -118,4 +118,35 @@ export class CredentialsBackendService {
         })
       )
   }
+
+  updateCredentials(
+    host: string,
+    login: string,
+    displayName: string,
+    password: string
+  ) {
+    return this.http
+      .put(
+        'http://localhost:8080/credentials',
+        {
+          host,
+          login,
+          new_password: password,
+          // temporery fix until the backend accept them as nullable
+          new_login: login,
+          new_display_name: displayName,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${this.authenticationService.getToken()}`,
+          },
+        }
+      )
+      .pipe(
+        catchError((error) => {
+          alert(error.message)
+          return of(undefined)
+        })
+      )
+  }
 }

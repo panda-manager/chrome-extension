@@ -21,6 +21,7 @@ mat-accordion {
 .header {
   width: 100%;
   display: flex;
+  justify-content: space-between;
   align-items: center;
   margin: 9px;
 }
@@ -33,6 +34,11 @@ mat-accordion {
   font-size: 1rem;
   height: 14px;
   padding: 8px;
+}
+
+.save {
+  margin-right: 10px;
+  color: blue;
 }
 
 .credential {
