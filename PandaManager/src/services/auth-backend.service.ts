@@ -1,8 +1,7 @@
 import { HttpClient } from '@angular/common/http'
 import { Injectable } from '@angular/core'
 import { Observable, catchError, map, of } from 'rxjs'
-import { DisplayedCredential } from '../models/contracts/displayed-credentials-response'
-import { AuthenticationService } from './authentication.service'
+import { environment } from '../environments/environment'
 
 @Injectable({
   providedIn: 'root',
@@ -13,7 +12,7 @@ export class AuthBackendService {
   public login(email: string, master_password: string): Observable<string> {
     return this.http
       .post(
-        'http://localhost:8080/auth/login',
+        environment.baseUrl + 'auth/login',
         {
           email,
           master_password,
@@ -30,7 +29,7 @@ export class AuthBackendService {
     lastName: string
   ): Observable<string> {
     return this.http.post(
-      'http://localhost:8080/auth/register',
+      environment.baseUrl + 'auth/register',
       {
         email,
         master_password: password,

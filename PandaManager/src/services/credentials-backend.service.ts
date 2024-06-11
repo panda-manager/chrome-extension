@@ -3,6 +3,7 @@ import { Injectable } from '@angular/core'
 import { Observable, catchError, map, of } from 'rxjs'
 import { DisplayedCredential } from '../models/contracts/displayed-credentials-response'
 import { AuthenticationService } from './authentication.service'
+import { environment } from '../environments/environment'
 
 @Injectable({
   providedIn: 'root',
@@ -15,7 +16,7 @@ export class CredentialsBackendService {
 
   getDisplayedCredentials(): Observable<DisplayedCredential[]> {
     return this.http
-      .get('http://localhost:8080/credentials', {
+      .get(environment.baseUrl + 'credentials', {
         headers: {
           Authorization: `Bearer ${this.authenticationService.getToken()}`,
         },
@@ -38,7 +39,7 @@ export class CredentialsBackendService {
 
   deleteCredential(host: string, login: string): Observable<boolean> {
     return this.http
-      .delete('http://localhost:8080/credentials', {
+      .delete(environment.baseUrl + 'credentials', {
         body: { host, login },
         headers: {
           Authorization: `Bearer ${this.authenticationService.getToken()}`,
@@ -54,7 +55,7 @@ export class CredentialsBackendService {
 
   validateMasterPassword(password: string) {
     return this.http.post(
-      'http://localhost:8080/auth/validate/master',
+      environment.baseUrl + 'auth/validate/master',
       {
         master_password: password,
       },
@@ -69,7 +70,7 @@ export class CredentialsBackendService {
   getPasswordPill(login: string, host: string): Observable<string> {
     return this.http
       .post(
-        'http://localhost:8080/credentials/password',
+        environment.baseUrl + 'credentials/password',
         {
           login,
           host,
@@ -98,7 +99,7 @@ export class CredentialsBackendService {
   ) {
     return this.http
       .post(
-        'http://localhost:8080/credentials',
+        environment.baseUrl + 'credentials',
         {
           login,
           display_name: displayName,
@@ -127,7 +128,7 @@ export class CredentialsBackendService {
   ) {
     return this.http
       .put(
-        'http://localhost:8080/credentials',
+        environment.baseUrl + 'credentials',
         {
           host,
           login,
