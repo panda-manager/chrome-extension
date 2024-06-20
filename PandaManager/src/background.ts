@@ -1,3 +1,4 @@
+import { environment } from './environments/environment'
 import { getPathUrl } from './utils/path-utill'
 
 chrome.webNavigation.onCompleted.addListener(({ tabId, frameId, url }) => {
@@ -18,7 +19,7 @@ chrome.webNavigation.onCompleted.addListener(({ tabId, frameId, url }) => {
     }
 
     fetch(
-      'http://localhost:8080/credentials/existence?host=' + getPathUrl(url),
+      environment.baseUrl + '/credentials/existence?host=' + getPathUrl(url),
       {
         method: 'GET',
         headers: { Authorization: 'Bearer ' + data['token'] },

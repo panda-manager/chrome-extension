@@ -70,6 +70,6 @@ export const hashCredentials = (
     // slice -32 because bcrypt store the salt at the begginng of the hash
     // we dont want that
     username: sha256(username).toString().slice(-32),
-    password: '', //bcrypt.hashSync(masterPassword, salt),
+    password: bcrypt.hashSync(masterPassword, salt),
   }
 }

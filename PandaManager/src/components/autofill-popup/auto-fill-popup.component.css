@@ -10,6 +10,11 @@
     rgba(0, 0, 0, 0.3) 0px 8px 16px -8px;
 }
 
+.loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
 mat-spinner {
   align-self: center;
 }
