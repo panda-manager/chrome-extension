@@ -19,7 +19,7 @@ export class AuthBackendService {
         },
         { responseType: 'json' }
       )
-      .pipe(map((res) => res['access_token']))
+      .pipe(map((res) => res['data']['access_token']))
   }
 
   public register(

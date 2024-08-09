@@ -3,5 +3,5 @@ import { Environment } from './environment-type'
 export const environment: Environment = {
   production: true,
   baseUrl:
-    'https://backend.ashypebble-e2273fcd.westeurope.azurecontainerapps.io/',
+    'https://proxy.kindcliff-a49394ce.northeurope.azurecontainerapps.io/',
 }

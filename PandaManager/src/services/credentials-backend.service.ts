@@ -4,6 +4,7 @@ import { Observable, catchError, map, of } from 'rxjs'
 import { DisplayedCredential } from '../models/contracts/displayed-credentials-response'
 import { AuthenticationService } from './authentication.service'
 import { environment } from '../environments/environment'
+import { ProxyBackendService } from './proxy-backend.service'
 
 @Injectable({
   providedIn: 'root',
@@ -11,7 +12,8 @@ import { environment } from '../environments/environment'
 export class CredentialsBackendService {
   constructor(
     private http: HttpClient,
-    private authenticationService: AuthenticationService
+    private authenticationService: AuthenticationService,
+    private proxyBackendService: ProxyBackendService
   ) {}
 
   getDisplayedCredentials(): Observable<DisplayedCredential[]> {
@@ -68,9 +70,13 @@ export class CredentialsBackendService {
   }
 
   getPasswordPill(login: string, host: string): Observable<string> {
-    return this.http
+    return this.proxyBackendService
       .post(
         environment.baseUrl + 'credentials/password',
+        {
+          login,
+          host,
+        },
         {
           login,
           host,
@@ -83,7 +89,13 @@ export class CredentialsBackendService {
         }
       )
       .pipe(
-        map((a: string) => a),
+        map(([partA, partB]: [string, string]) => {
+          if (partA.startsWith('0')) {
+            return partA.substring(1) + partB.substring(1)
+          } else {
+            return partB.substring(1) + partA.substring(1)
+          }
+        }),
         catchError((error) => {
           alert(error.message)
           return of(undefined)
@@ -97,21 +109,31 @@ export class CredentialsBackendService {
     login: string,
     password: string
   ) {
-    return this.http
-      .post(
-        environment.baseUrl + 'credentials',
-        {
-          login,
-          display_name: displayName,
-          password: password,
-          host,
+    const middleIndex = Math.floor(password.length / 2)
+    // Include middle character in the first half
+    const firstHalf = '0' + password.substring(0, middleIndex + 1)
+    const secondHalf = '1' + password.substring(middleIndex + 1)
+
+    const body1 = {
+      login,
+      display_name: displayName,
+      password: firstHalf,
+      host,
+    }
+
+    const body2 = {
+      login,
+      display_name: displayName,
+      password: secondHalf,
+      host,
+    }
+
+    return this.proxyBackendService
+      .post(environment.baseUrl + 'credentials', body1, body2, {
+        headers: {
+          Authorization: `Bearer ${this.authenticationService.getToken()}`,
         },
-        {
-          headers: {
-            Authorization: `Bearer ${this.authenticationService.getToken()}`,
-          },
-        }
-      )
+      })
       .pipe(
         catchError((error) => {
           alert(error.message)
