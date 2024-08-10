@@ -5,6 +5,15 @@ import { DisplayedCredential } from '../models/contracts/displayed-credentials-r
 import { AuthenticationService } from './authentication.service'
 import { environment } from '../environments/environment'
 import { ProxyBackendService } from './proxy-backend.service'
+import { getuid } from 'process'
+
+function getGuid(): string {
+  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
+    var r = (Math.random() * 16) | 0,
+      v = c === 'x' ? r : (r & 0x3) | 0x8
+    return v.toString(16)
+  })
+}
 
 @Injectable({
   providedIn: 'root',
@@ -26,7 +35,7 @@ export class CredentialsBackendService {
       .pipe(
         map((res: any[]) =>
           res.map((cred) => ({
-            id: cred['_id'],
+            id: cred['_id'] ?? getGuid(),
             login: cred['login'],
             displayName: cred['display_name'],
             host: cred['host'],

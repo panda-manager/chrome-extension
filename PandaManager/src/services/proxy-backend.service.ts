@@ -12,7 +12,6 @@ function getGuid(): string {
     return v.toString(16)
   })
 }
-const guid = getGuid()
 
 @Injectable({
   providedIn: 'root',
