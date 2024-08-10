@@ -35,7 +35,7 @@ export class CredentialsBackendService {
       .pipe(
         map((res: any[]) =>
           res.map((cred) => ({
-            id: cred['_id'] ?? getGuid(),
+            id: getGuid(),
             login: cred['login'],
             displayName: cred['display_name'],
             host: cred['host'],

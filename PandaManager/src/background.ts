@@ -1,6 +1,97 @@
 import { environment } from './environments/environment'
 import { getPathUrl } from './utils/path-utill'
 
+let latestAutoSave = undefined
+
+const createAutoSaveNotification = (data, hostUrl) => {
+  const loginNotificationId = `pmAutoSaveNotification-${Date.now()}`
+  chrome.notifications.create(loginNotificationId, {
+    type: 'basic',
+    iconUrl: '/assets/panda128.png',
+    title: 'Panda Manager',
+    message:
+      'We noticed a new login attemp. Would you like to save the credentials',
+    priority: 1,
+    requireInteraction: true,
+    buttons: [{ title: 'Save' }],
+  })
+
+  chrome.notifications.onButtonClicked.addListener((notificationId: string) => {
+    if (notificationId !== loginNotificationId) {
+      return
+    }
+
+    let queryOptions = { active: true, currentWindow: true }
+    chrome.tabs.query(queryOptions).then((urls) => {
+      chrome.storage.local.set({
+        'pm-auto-save': {
+          ...data,
+          host: hostUrl,
+          displayName: urls[0].title,
+        },
+      })
+      chrome.windows.create(
+        {
+          url: chrome.runtime.getURL('index.html'),
+          type: 'popup',
+          width: 320,
+          height: 300,
+        },
+        (newWindow) => {
+          chrome.runtime.onMessage.addListener((request) => {
+            if (request === 'close-auto-save-pm') {
+              chrome.windows.remove(newWindow.id)
+            }
+          })
+        }
+      )
+    })
+  })
+}
+const injectAutoSave = (
+  tabId: number,
+  frameId: number,
+  jwt: string,
+  hostUrl: string
+) => {
+  chrome.runtime.onMessage.addListener((request) => {
+    if (request.action !== 'login') return
+
+    if (latestAutoSave === undefined) {
+      latestAutoSave = Date.now()
+    } else {
+      const timeDifference = Math.abs(latestAutoSave - Date.now())
+      if (timeDifference < 1000) {
+        return
+      }
+
+      latestAutoSave = Date.now()
+    }
+
+    fetch(environment.baseUrl + 'credentials', {
+      method: 'GET',
+      headers: { Authorization: 'Bearer ' + jwt },
+    })
+      .then((r) => r.json())
+      .then((res) => {
+        const exsitingCred = res.find(
+          (cred) =>
+            cred['login'] === request.data.username && cred['host'] === hostUrl
+        )
+        if (exsitingCred) return
+
+        createAutoSaveNotification(request.data, hostUrl)
+      })
+      .catch((error) => console.error(error.message))
+  })
+
+  chrome.scripting.executeScript({
+    target: { tabId, frameIds: [frameId] },
+    func: suggestAutoSaveScript,
+    args: [],
+  })
+}
+
 chrome.webNavigation.onCompleted.addListener(({ tabId, frameId, url }) => {
   if (frameId !== 0) return
   if (url.startsWith('chrome://')) return undefined
@@ -10,73 +101,10 @@ chrome.webNavigation.onCompleted.addListener(({ tabId, frameId, url }) => {
       return
     }
 
-    let latestAutoSave = undefined
-    chrome.runtime.onMessage.addListener((request) => {
-      console.log('login message')
-
-      if (request.action === 'login') {
-        if (latestAutoSave === undefined) {
-          latestAutoSave = Date.now()
-        } else {
-          const timeDifference = Math.abs(latestAutoSave - Date.now())
-          console.log(timeDifference)
-          if (timeDifference < 10000) {
-            return
-          }
-
-          latestAutoSave = Date.now()
-        }
-
-        const loginNotificationId = `pmAutoSaveNotification-${Date.now()}`
-        chrome.notifications.create(loginNotificationId, {
-          type: 'basic',
-          iconUrl: '/assets/panda128.png',
-          title: 'Panda Manager',
-          message:
-            'We noticed a new login attemp. Would you like to save the credentials',
-          priority: 1,
-          requireInteraction: true,
-          buttons: [{ title: 'Save' }],
-        })
-
-        chrome.notifications.onButtonClicked.addListener(
-          (notificationId: string) => {
-            if (notificationId !== loginNotificationId) {
-              return
-            }
-
-            let queryOptions = { active: true, currentWindow: true }
-            chrome.tabs.query(queryOptions).then((urls) => {
-              chrome.storage.local.set({
-                'pm-auto-save': {
-                  ...request.data,
-                  host: getPathUrl(urls[0].url),
-                  displayName: urls[0].title,
-                },
-              })
-              const popup = chrome.windows.create(
-                {
-                  url: chrome.runtime.getURL('index.html'),
-                  type: 'popup',
-                  width: 380,
-                  height: 300,
-                },
-                (newWindow) => {
-                  chrome.runtime.onMessage.addListener((request) => {
-                    if (request === 'close-auto-save-pm') {
-                      chrome.windows.remove(newWindow.id)
-                    }
-                  })
-                }
-              )
-            })
-          }
-        )
-      }
-    })
+    injectAutoSave(tabId, frameId, data['token'], getPathUrl(url))
 
     fetch(
-      environment.baseUrl + '/credentials/existence?host=' + getPathUrl(url),
+      environment.baseUrl + 'credentials/existence?host=' + getPathUrl(url),
       {
         method: 'GET',
         headers: { Authorization: 'Bearer ' + data['token'] },
@@ -88,15 +116,15 @@ chrome.webNavigation.onCompleted.addListener(({ tabId, frameId, url }) => {
 
         chrome.scripting.executeScript({
           target: { tabId, frameIds: [frameId] },
-          func: newPageLoad,
-          args: [chrome.notifications, data['token'], getPathUrl(url)],
+          func: suggestAutoFillScript,
+          args: [],
         })
       })
       .catch((error) => console.error(error.message))
   })
 })
 
-const newPageLoad = () => {
+const suggestAutoFillScript = () => {
   let inputs = document.getElementsByTagName('input')
   const inputLength = inputs.length
   for (let i = 0; i < inputLength; i++) {
@@ -164,50 +192,6 @@ const newPageLoad = () => {
 
       document.body.appendChild(popup)
     })
-
-    const buttons = document.getElementsByTagName('button')
-    for (let i = 0; i < buttons.length; i++) {
-      let button = buttons.item(i)
-      if (button.innerText.toLowerCase() === 'log in') {
-        button.classList.add('pm-login-button')
-
-        function loginButtonClickFn(event: MouseEvent) {
-          const pmInput = document.getElementsByClassName('pm-password-input')
-          if (
-            pmInput.length !== 0 &&
-            (pmInput.item(0) as HTMLInputElement).value
-          ) {
-            const passwordInput = document
-              .getElementsByClassName('pm-password-input')
-              .item(0) as HTMLInputElement
-
-            const usernameInput = document
-              .getElementsByClassName('pm-username-input')
-              .item(0) as HTMLInputElement
-
-            chrome.runtime.sendMessage({
-              action: 'login',
-              data: {
-                username: usernameInput.value,
-                password: passwordInput.value,
-              },
-            })
-
-            console.log('before remove')
-
-            const button = document
-              .getElementsByClassName('pm-login-button')
-              .item(0)
-
-            console.log(button)
-
-            button.removeEventListener('click', loginButtonClickFn)
-          }
-        }
-
-        button.addEventListener('click', loginButtonClickFn)
-      }
-    }
   }
 
   // closePopupIfOpened
@@ -268,8 +252,72 @@ const newPageLoad = () => {
 
     passwordInput.value = message.data.password
     usernameInput.value = message.data.login
+
     document.body.removeChild(popup)
+
+    const clickEvent = new MouseEvent('click')
+
+    // Dispatch a click event on the button
+    document
+      .getElementsByClassName('pm-login-button')
+      .item(0)
+      .dispatchEvent(clickEvent)
   })
 }
 
-const closePopupIfOpened = async () => {}
+const suggestAutoSaveScript = () => {
+  const hasPasswordInput = () => {
+    const inputs = document.getElementsByTagName('input')
+    for (let i = 0; i < inputs.length; i++) {
+      const input = inputs.item(i)
+
+      // Element is hidden
+      if (window.getComputedStyle(input).display === 'none') continue
+
+      if (input.type === 'password') {
+        input.classList.add('pm-auto-save-password')
+        return true
+      }
+
+      input.classList.add('pm-auto-save-username')
+    }
+
+    return false
+  }
+
+  const loginButton = document.querySelectorAll('button[type="submit"]').item(0)
+
+  if (!hasPasswordInput() || !loginButton) {
+    return
+  }
+  // auto save
+
+  loginButton.classList.add('pm-login-button')
+
+  function loginButtonClickFn(event: MouseEvent) {
+    const pmInput = document.getElementsByClassName('pm-auto-save-password')
+    if (pmInput.length !== 0 && (pmInput.item(0) as HTMLInputElement).value) {
+      const passwordInput = document
+        .getElementsByClassName('pm-auto-save-password')
+        .item(0) as HTMLInputElement
+
+      const usernameInput = document
+        .getElementsByClassName('pm-auto-save-username')
+        .item(0) as HTMLInputElement
+
+      chrome.runtime.sendMessage({
+        action: 'login',
+        data: {
+          username: usernameInput.value,
+          password: passwordInput.value,
+        },
+      })
+
+      // const button = document.getElementsByClassName('pm-login-button').item(0)
+
+      // button.removeEventListener('click', loginButtonClickFn)
+    }
+  }
+
+  loginButton.addEventListener('click', loginButtonClickFn)
+}
