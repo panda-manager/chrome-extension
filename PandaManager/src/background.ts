@@ -5,18 +5,75 @@ chrome.webNavigation.onCompleted.addListener(({ tabId, frameId, url }) => {
   if (frameId !== 0) return
   if (url.startsWith('chrome://')) return undefined
 
-  // chrome.notifications.create({
-  //   type: 'basic',
-  //   iconUrl: '/assets/panda128.png',
-  //   title: `Notification title`,
-  //   message: 'Your message',
-  //   priority: 1,
-  // })
-
   chrome.storage.local.get('token').then((data) => {
     if (!data['token']) {
       return
     }
+
+    let latestAutoSave = undefined
+    chrome.runtime.onMessage.addListener((request) => {
+      console.log('login message')
+
+      if (request.action === 'login') {
+        if (latestAutoSave === undefined) {
+          latestAutoSave = Date.now()
+        } else {
+          const timeDifference = Math.abs(latestAutoSave - Date.now())
+          console.log(timeDifference)
+          if (timeDifference < 10000) {
+            return
+          }
+
+          latestAutoSave = Date.now()
+        }
+
+        const loginNotificationId = `pmAutoSaveNotification-${Date.now()}`
+        chrome.notifications.create(loginNotificationId, {
+          type: 'basic',
+          iconUrl: '/assets/panda128.png',
+          title: 'Panda Manager',
+          message:
+            'We noticed a new login attemp. Would you like to save the credentials',
+          priority: 1,
+          requireInteraction: true,
+          buttons: [{ title: 'Save' }],
+        })
+
+        chrome.notifications.onButtonClicked.addListener(
+          (notificationId: string) => {
+            if (notificationId !== loginNotificationId) {
+              return
+            }
+
+            let queryOptions = { active: true, currentWindow: true }
+            chrome.tabs.query(queryOptions).then((urls) => {
+              chrome.storage.local.set({
+                'pm-auto-save': {
+                  ...request.data,
+                  host: getPathUrl(urls[0].url),
+                  displayName: urls[0].title,
+                },
+              })
+              const popup = chrome.windows.create(
+                {
+                  url: chrome.runtime.getURL('index.html'),
+                  type: 'popup',
+                  width: 380,
+                  height: 300,
+                },
+                (newWindow) => {
+                  chrome.runtime.onMessage.addListener((request) => {
+                    if (request === 'close-auto-save-pm') {
+                      chrome.windows.remove(newWindow.id)
+                    }
+                  })
+                }
+              )
+            })
+          }
+        )
+      }
+    })
 
     fetch(
       environment.baseUrl + '/credentials/existence?host=' + getPathUrl(url),
@@ -32,14 +89,14 @@ chrome.webNavigation.onCompleted.addListener(({ tabId, frameId, url }) => {
         chrome.scripting.executeScript({
           target: { tabId, frameIds: [frameId] },
           func: newPageLoad,
-          args: [data['token'], getPathUrl(url)],
+          args: [chrome.notifications, data['token'], getPathUrl(url)],
         })
       })
       .catch((error) => console.error(error.message))
   })
 })
 
-const newPageLoad = (jwtToken: string, url: string) => {
+const newPageLoad = () => {
   let inputs = document.getElementsByTagName('input')
   const inputLength = inputs.length
   for (let i = 0; i < inputLength; i++) {
@@ -107,6 +164,50 @@ const newPageLoad = (jwtToken: string, url: string) => {
 
       document.body.appendChild(popup)
     })
+
+    const buttons = document.getElementsByTagName('button')
+    for (let i = 0; i < buttons.length; i++) {
+      let button = buttons.item(i)
+      if (button.innerText.toLowerCase() === 'log in') {
+        button.classList.add('pm-login-button')
+
+        function loginButtonClickFn(event: MouseEvent) {
+          const pmInput = document.getElementsByClassName('pm-password-input')
+          if (
+            pmInput.length !== 0 &&
+            (pmInput.item(0) as HTMLInputElement).value
+          ) {
+            const passwordInput = document
+              .getElementsByClassName('pm-password-input')
+              .item(0) as HTMLInputElement
+
+            const usernameInput = document
+              .getElementsByClassName('pm-username-input')
+              .item(0) as HTMLInputElement
+
+            chrome.runtime.sendMessage({
+              action: 'login',
+              data: {
+                username: usernameInput.value,
+                password: passwordInput.value,
+              },
+            })
+
+            console.log('before remove')
+
+            const button = document
+              .getElementsByClassName('pm-login-button')
+              .item(0)
+
+            console.log(button)
+
+            button.removeEventListener('click', loginButtonClickFn)
+          }
+        }
+
+        button.addEventListener('click', loginButtonClickFn)
+      }
+    }
   }
 
   // closePopupIfOpened

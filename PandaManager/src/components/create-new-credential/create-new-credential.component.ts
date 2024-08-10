@@ -48,12 +48,25 @@ export class CreateNewCredentialComponent implements OnInit {
       password: new FormControl('', Validators.required),
     })
 
-    let queryOptions = { active: true, currentWindow: true }
-    chrome.tabs.query(queryOptions).then((urls) => {
-      getPathUrl(urls[0].url)
-      this.form.get('displayName').setValue(urls[0].title)
-      this.form.get('host').setValue(getPathUrl(urls[0].url))
-    })
+    const autoSaveDefaults = chrome.storage.local
+      .get('pm-auto-save')
+      .then((defaults) => {
+        if (!defaults['pm-auto-save']) {
+          let queryOptions = { active: true, currentWindow: true }
+          chrome.tabs.query(queryOptions).then((urls) => {
+            this.form.get('displayName').setValue(urls[0].title)
+            this.form.get('host').setValue(getPathUrl(urls[0].url))
+          })
+          return
+        }
+
+        const deafultValue = defaults['pm-auto-save']
+
+        this.form.get('login').setValue(deafultValue.username)
+        this.form.get('password').setValue(deafultValue.password)
+        this.form.get('host').setValue(deafultValue.host)
+        this.form.get('displayName').setValue(deafultValue.displayName)
+      })
   }
 
   public onSubmit() {
