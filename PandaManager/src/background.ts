@@ -33,9 +33,9 @@ const createAutoSaveNotification = (data, hostUrl) => {
       chrome.windows.create(
         {
           url: chrome.runtime.getURL('index.html'),
-          type: 'popup',
-          width: 320,
-          height: 300,
+          type: 'panel',
+          width: 230,
+          height: 180,
         },
         (newWindow) => {
           chrome.runtime.onMessage.addListener((request) => {

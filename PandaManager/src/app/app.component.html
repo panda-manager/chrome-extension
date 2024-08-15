@@ -2,6 +2,9 @@
   <pm-auto-fill-popup></pm-auto-fill-popup>
 } @else {
   @if (isFromAutoSave) {
+    <pm-validate-password-content
+      (onApproveClicked)="autoSaveValidatedApproved($event)"
+    ></pm-validate-password-content>
   } @else {
     <pm-navbar></pm-navbar>
     <main>

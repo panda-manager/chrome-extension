@@ -8,56 +8,52 @@ import { MatDialog } from '@angular/material/dialog'
 import { ValidatePasswordDialogComponent } from '../components/validate-password-dialog/validate-password-dialog.component'
 import { filter, switchMap } from 'rxjs'
 import { createPill } from '../utils/crypto-utils'
+import { ValidatePasswordContentComponent } from '../components/validate-password-content/validate-password-content.component'
 
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [RouterOutlet, NavbarComponent, AutoFillPopupComponent],
+  imports: [
+    RouterOutlet,
+    NavbarComponent,
+    AutoFillPopupComponent,
+    ValidatePasswordContentComponent,
+  ],
   templateUrl: './app.component.html',
   styleUrl: './app.component.scss',
 })
 export class AppComponent {
   isFromAutoSave = false
+  autoSaveData
 
   constructor(
     private http: HttpClient,
-    private router: Router,
-    private dialog: MatDialog,
     private credentialsBackendService: CredentialsBackendService
   ) {
     chrome.storage.local.get('pm-auto-save').then((local) => {
-      const data = local['pm-auto-save']
-      if (!data) return
+      this.autoSaveData = local['pm-auto-save']
+      if (!this.autoSaveData) return
 
       chrome.storage.local.remove('pm-auto-save')
       this.isFromAutoSave = true
-      this.dialog
-        .open(ValidatePasswordDialogComponent, { disableClose: true })
-        .afterClosed()
-        .pipe(
-          filter((result) => {
-            if (!result) {
-              chrome.runtime.sendMessage('close-auto-save-pm')
-            }
-            return result
-          }),
-          switchMap((masterPassword) =>
-            this.credentialsBackendService.createCredentials(
-              data.displayName,
-              data.host,
-              data.username,
-              createPill(data.password, masterPassword)
-            )
-          )
-        )
-        .subscribe(() => {
-          chrome.runtime.sendMessage('close-auto-save-pm')
-        })
     })
   }
 
   isIframe() {
     return window.location !== window.parent.location
+  }
+
+  autoSaveValidatedApproved(masterPassword: string) {
+    this.credentialsBackendService
+      .createCredentials(
+        this.autoSaveData.displayName,
+        this.autoSaveData.host,
+        this.autoSaveData.username,
+        createPill(this.autoSaveData.password, masterPassword)
+      )
+      .subscribe(() => {
+        chrome.runtime.sendMessage('close-auto-save-pm')
+      })
   }
 
   getConfig() {
