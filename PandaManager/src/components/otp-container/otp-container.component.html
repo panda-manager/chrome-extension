@@ -1,0 +1,17 @@
+<header>
+  <span class="header-main">Please check your email</span>
+  <span class="header-sub">We've send a code to {{ email }}</span>
+</header>
+<pm-otp-input [formControl]="otpForm" />
+<div class="resent-code">
+  Didn't get the code?
+  <button (click)="onResendOtpClick()">Click to resend.</button>
+</div>
+<button class="cancel" mat-flat-button color="primary" (click)="onGoBack()">
+  Cancel
+</button>
+{{ errorMessage }}
+<ngx-loading
+  [show]="loading"
+  [config]="{ backdropBorderRadius: '3px' }"
+></ngx-loading>

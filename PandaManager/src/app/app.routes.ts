@@ -6,12 +6,14 @@ import { RegisterContainerComponent } from '../components/register-container/reg
 import { AuthGuard } from '../guards/auth-gard'
 import { HomeComponent } from '../components/home/home.component'
 import { CreateNewCredentialComponent } from '../components/create-new-credential/create-new-credential.component'
+import { OtpContainerComponent } from '../components/otp-container/otp-container.component'
 
 export const routes: Routes = [
   {
     path: '',
     component: HomeComponent,
     pathMatch: 'full',
+    canActivate: [AuthGuard],
   },
   {
     path: 'login',
@@ -24,6 +26,11 @@ export const routes: Routes = [
     component: RegisterContainerComponent,
   },
   {
+    path: 'otp',
+    pathMatch: 'full',
+    component: OtpContainerComponent,
+  },
+  {
     path: 'generate',
     component: GeneratePasswordContainerComponent,
     pathMatch: 'full',
@@ -31,7 +38,6 @@ export const routes: Routes = [
   {
     path: 'vault',
     canActivate: [AuthGuard],
-
     children: [
       { path: '', component: VaultContainerComponent, pathMatch: 'full' },
       {

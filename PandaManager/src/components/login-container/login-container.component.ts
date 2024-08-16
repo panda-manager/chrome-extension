@@ -10,7 +10,7 @@ import { AuthenticationService } from '../../services/authentication.service'
 import { MatFormFieldModule } from '@angular/material/form-field'
 import { MatInputModule } from '@angular/material/input'
 import { MatButtonModule } from '@angular/material/button'
-import { RouterModule } from '@angular/router'
+import { Router, RouterModule } from '@angular/router'
 import { NgxLoadingModule } from 'ngx-loading'
 import { EMPTY, catchError } from 'rxjs'
 
@@ -33,9 +33,16 @@ export class LoginContainerComponent implements OnInit {
   public loginForm!: FormGroup
   public loading = false
 
-  constructor(private authenticationService: AuthenticationService) {}
+  constructor(
+    private authenticationService: AuthenticationService,
+    private router: Router
+  ) {}
 
   ngOnInit() {
+    if (this.authenticationService.isDuringOtpVerification()) {
+      this.router.navigate(['/otp'])
+    }
+
     this.loginForm = new FormGroup({
       email: new FormControl('', [Validators.required, Validators.email]),
       password: new FormControl('', Validators.required),
@@ -52,8 +59,18 @@ export class LoginContainerComponent implements OnInit {
       )
       .pipe(
         catchError((error) => {
-          this.loading = false
-          alert(error.message)
+          // account need to be OTP verified first
+          if (error.error.statusCode === 403) {
+            localStorage.setItem(
+              this.authenticationService.registrationEmailKey,
+              this.loginForm.get('email')!.value
+            )
+            this.router.navigate(['/otp'])
+          } else {
+            this.loading = false
+            alert(error.error.message)
+          }
+
           return EMPTY
         })
       )

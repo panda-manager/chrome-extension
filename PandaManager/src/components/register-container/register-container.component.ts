@@ -11,6 +11,8 @@ import { MatButtonModule } from '@angular/material/button'
 import { MatFormFieldModule } from '@angular/material/form-field'
 import { MatInputModule } from '@angular/material/input'
 import { RouterModule } from '@angular/router'
+import { NgxLoadingModule } from 'ngx-loading'
+import { EMPTY, catchError } from 'rxjs'
 
 @Component({
   selector: 'app-register-container',
@@ -24,10 +26,12 @@ import { RouterModule } from '@angular/router'
     MatInputModule,
     MatButtonModule,
     RouterModule,
+    NgxLoadingModule,
   ],
 })
 export class RegisterContainerComponent implements OnInit {
   public registerForm!: FormGroup
+  loading = false
 
   constructor(private authenticationService: AuthenticationService) {}
 
@@ -41,11 +45,21 @@ export class RegisterContainerComponent implements OnInit {
   }
 
   public onSubmit() {
-    this.authenticationService.register(
-      this.registerForm.get('email').value,
-      this.registerForm!.get('password').value,
-      this.registerForm!.get('firstName').value,
-      this.registerForm!.get('lastName').value
-    )
+    this.loading = true
+    this.authenticationService
+      .register(
+        this.registerForm.get('email').value,
+        this.registerForm!.get('password').value,
+        this.registerForm!.get('firstName').value,
+        this.registerForm!.get('lastName').value
+      )
+      .pipe(
+        catchError((error) => {
+          this.loading = false
+          alert(error.error.message)
+          return EMPTY
+        })
+      )
+      .subscribe()
   }
 }

@@ -82,7 +82,7 @@ const injectAutoSave = (
 
         createAutoSaveNotification(request.data, hostUrl)
       })
-      .catch((error) => console.error(error.message))
+      .catch((error) => console.error(JSON.parse(error.error).message))
   })
 
   chrome.scripting.executeScript({
@@ -120,7 +120,7 @@ chrome.webNavigation.onCompleted.addListener(({ tabId, frameId, url }) => {
           args: [],
         })
       })
-      .catch((error) => console.error(error.message))
+      .catch((error) => console.error(JSON.parse(error.error).message))
   })
 })
 

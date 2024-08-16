@@ -42,7 +42,7 @@ export class ValidatePasswordContentComponent {
       .validateMasterPassword(this.masterPassword)
       .pipe(
         catchError((error) => {
-          this.error = error.message
+          this.error = error.error.message
           return EMPTY
         })
       )

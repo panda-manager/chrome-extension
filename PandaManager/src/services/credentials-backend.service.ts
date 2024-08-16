@@ -42,7 +42,7 @@ export class CredentialsBackendService {
           }))
         ),
         catchError((error) => {
-          alert(error.message)
+          alert(JSON.parse(error.error).message)
           return of([])
         })
       )
@@ -66,7 +66,7 @@ export class CredentialsBackendService {
 
   validateMasterPassword(password: string) {
     return this.http.post(
-      environment.baseUrl + 'auth/validate/master',
+      environment.baseUrl + 'user/validate/master',
       {
         master_password: password,
       },
@@ -106,7 +106,7 @@ export class CredentialsBackendService {
           }
         }),
         catchError((error) => {
-          alert(error.message)
+          alert(JSON.parse(error.error).message)
           return of(undefined)
         })
       )
@@ -145,7 +145,7 @@ export class CredentialsBackendService {
       })
       .pipe(
         catchError((error) => {
-          alert(error.message)
+          alert(JSON.parse(error.error).message)
           return of(undefined)
         })
       )
@@ -176,7 +176,7 @@ export class CredentialsBackendService {
       )
       .pipe(
         catchError((error) => {
-          alert(error.message)
+          alert(JSON.parse(error.error).message)
           return of(undefined)
         })
       )

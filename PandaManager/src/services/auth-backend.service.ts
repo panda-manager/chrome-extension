@@ -22,12 +22,30 @@ export class AuthBackendService {
       .pipe(map((res) => res['data']['access_token']))
   }
 
+  public verify(email: string, otp: string): Observable<string> {
+    return this.http
+      .get(environment.baseUrl + `otp/verify?otp=${otp}&email=${email}`, {
+        responseType: 'json',
+      })
+      .pipe(map((res) => res['data']['access_token']))
+  }
+
+  public resendOtp(email: string) {
+    return this.http.post(
+      environment.baseUrl + `otp/`,
+      { email },
+      {
+        responseType: 'json',
+      }
+    )
+  }
+
   public register(
     email: string,
     password: string,
     firstName: string,
     lastName: string
-  ): Observable<string> {
+  ) {
     return this.http.post(
       environment.baseUrl + 'auth/register',
       {
@@ -37,7 +55,7 @@ export class AuthBackendService {
         last_name: lastName,
       },
       {
-        responseType: 'text',
+        responseType: 'json',
       }
     )
   }
